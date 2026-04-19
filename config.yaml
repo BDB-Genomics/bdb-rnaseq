@@ -1,0 +1,169 @@
+# ==============================================================================
+# BDB Genomics - RNA-seq Pipeline Configuration
+# ==============================================================================
+
+# --- Project Metadata ---------------------------------------------------------
+global:
+  samples: "data/fastp/samples.tsv"
+  envs:
+    main: "envs/main.yaml"
+  index: "path/to/star/index"           # REPLACE with your STAR genome index directory
+  gtf: "path/to/annotation.gtf"        # REPLACE with your GTF annotation file
+  refgene: "path/to/refgene.bed"       # REPLACE with your RSeQC reference gene BED file
+
+# --- Tool Specific Configurations ---------------------------------------------
+
+# Preprocessing
+fastp:
+  output:
+    dir: "results/fastp"
+  params:
+    trim_front1: 5
+    trim_front2: 5
+    length_required: 30 
+  threads: 4
+  resources:
+    mem_mb: 8000
+    time: "02:00:00"
+
+fastqc:
+  input:
+    R1: "results/fastp"
+    R2: "results/fastp"
+  output: "results/fastqc"
+  threads: 4
+  resources:
+    mem_mb: 2000
+    time: "00:30:00"
+
+# Alignment
+star:
+  output:
+    dir: "results/star"
+  params:
+    sjdbOverhang: 100                     # Read length - 1 (default: 100)
+  threads: 8
+  resources:
+    mem_mb: 32000
+    time: "04:00:00"
+
+# Post-alignment
+samtools_sort:
+  input:
+    unsorted_bam: "results/star"
+  output:
+    sorted_bam: "results/samtools_sort"
+  threads: 4
+  resources:
+    mem_mb: 8000
+    time: "02:00:00"
+
+samtools_index: 
+  input:
+    sorted_bam: "results/markduplicates"
+  output:
+    index: "results/samtools_index"
+  threads: 2
+  resources:
+    mem_mb: 2000
+    time: "00:30:00"
+
+samtools_stats:
+  input:
+    bam: "results/markduplicates"
+  output:
+    stats: "results/samtools_stats"
+  threads: 2
+  resources:
+    mem_mb: 2000
+    time: "00:30:00"
+
+# Post-alignment QC
+markduplicates:
+  input:
+    dir: "results/samtools_sort"
+  output:
+    dir: "results/markduplicates"
+  params:
+    java_opts: "-Xmx4g"
+    duplicate_scoring_strategy: "SUM_OF_BASE_QUALITIES"
+    optical_duplicate_pixel_distance: 2500
+  threads: 4
+  resources:
+    mem_mb: 8000
+    time: "02:00:00"
+
+rseqc:
+  input:
+    bam: "results/markduplicates"
+  output:
+    dir: "results/rseqc"
+  threads: 4
+  resources:
+    mem_mb: 8000
+    time: "02:00:00"
+
+preseq:
+  input:
+    bam: "results/markduplicates"
+  output:
+    dir: "results/preseq"
+  threads: 2
+  resources:
+    mem_mb: 4000
+    time: "01:00:00"
+
+# Quantification
+featurecounts:
+  output:
+    dir: "results/featurecounts"
+  params:
+    strandedness: 2                       # 0=unstranded, 1=stranded, 2=reversely stranded (typical for Illumina dUTP)
+    feature_type: "exon"                  # GTF feature type to count
+    attribute: "gene_id"                  # GTF attribute for grouping
+  threads: 4
+  resources:
+    mem_mb: 8000
+    time: "01:00:00"
+
+# Downstream Analysis
+deseq2_prep:
+  input:
+    counts: "results/featurecounts/counts.txt"
+    samples: "data/fastp/samples.tsv"
+  output:
+    dir: "results/deseq2"
+  params:
+    min_mean_expr: 1                      # Minimum mean expression threshold
+    padj_threshold: 0.05                  # Adjusted p-value threshold for significance
+  threads: 4
+  resources:
+    mem_mb: 16000
+    time: "04:00:00"
+
+
+# --- QC Gate ------------------------------------------------------------------
+qc_gate:
+  input:
+    stats: "results/samtools_stats"
+  output:
+    dir: "results/qc_gate"
+  params:
+    min_total_reads: 10000000
+    min_mapping_rate: 70.0
+    max_duplicate_rate: 30.0
+  threads: 1
+  resources:
+    mem_mb: 1000
+    time: "00:10:00"
+
+# --- Reporting ----------------------------------------------------------------
+multiqc:
+  input:
+    reports_dir: "results/"
+  output:
+    report: "results/multiqc"
+  threads: 2
+  resources:
+    mem_mb: 4000
+    time: "00:30:00"

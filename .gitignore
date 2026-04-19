@@ -1,0 +1,104 @@
+# ============================================================
+# BDB-Genomics RNA-seq Pipeline
+# .gitignore
+# ============================================================
+
+# --- Snakemake & Conda -------------------------------------
+.snakemake/
+snakemake.log
+*.smk.db
+*.smk.state
+
+# --- Pipeline outputs --------------------------------------
+results/
+logs/
+benchmarks/
+*.log
+
+# --- Cache ------------------------------------------------
+.cache/
+.pytest_cache/
+.mypy_cache/
+
+# --- Conda environments -----------------------------------
+envs/*.yaml
+!envs/main.yaml
+
+# --- Python ----------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+*.egg
+eggs/
+build/
+dist/
+wheels/
+*.whl
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- IDE -------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+
+# --- FASTQ / BAM / Index ---------------------------------
+*.fastq.gz
+*.fq.gz
+*.bam
+*.bam.bai
+*.bai
+*.bw
+*.bigwig
+*.bed
+*.gtf
+*.fa
+*.fasta
+*.amb
+*.ann
+*.bwt
+*.dict
+*.sa
+
+# --- Reference files (user-provided) --------------------
+
+# --- Logs ------------------------------------------------
+*.log
+
+# --- Temporary files -------------------------------------
+tmp/
+temp/
+*.tmp
+*.tmp.*
+core
+core.*
+
+# --- Pipeline state --------------------------------------
+pipeline.lock
+*.state
+
+# --- Output aggregates -----------------------------------
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.eps
+
+# --- Secrets (defense in depth) --------------------------
+*.key
+*.pem
+credentials.json
+secrets.yaml
+
+# --- Aider (AI coding assistant) -------------------------
+.aider*
+.aider/

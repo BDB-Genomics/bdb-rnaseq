@@ -1,0 +1,52 @@
+#!/bin/bash
+dirs=(
+"benchmarks/fastp"
+"logs/fastp"
+"results/fastp"
+"benchmarks/fastqc"
+"logs/fastqc"
+"results/fastqc"
+"benchmarks/star"
+"logs/star"
+"results/star"
+"benchmarks/samtools_sort"
+"logs/samtools_sort"
+"results/samtools_sort"
+"benchmarks/markduplicates"
+"logs/markduplicates"
+"results/markduplicates"
+"benchmarks/samtools_index"
+"logs/samtools_index"
+"results/samtools_index"
+"benchmarks/samtools_stats"
+"logs/samtools_stats"
+"results/samtools_stats"
+"benchmarks/rseqc"
+"logs/rseqc"
+"results/rseqc"
+"benchmarks/preseq"
+"logs/preseq"
+"results/preseq"
+"benchmarks/featurecounts"
+"logs/featurecounts"
+"results/featurecounts"
+"benchmarks/deseq2_prep"
+"logs/deseq2_prep"
+"results/deseq2_prep"
+"benchmarks/qc_gate"
+"logs/qc_gate"
+"results/qc_gate"
+"benchmarks/multiqc"
+"logs/multiqc"
+"results/multiqc"
+)
+
+for dir in "${dirs[@]}"; do
+  echo "Creating directory: ${dir}"
+  mkdir -p "$dir"
+  if [ $? -eq 0 ]; then
+      echo "Successfully created directory: ${dir}"
+  fi
+done
+
+echo "Directory structure created successfully"
