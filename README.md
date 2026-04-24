@@ -1,29 +1,20 @@
+<p align="center">
+  <img src="assets/pipeline_diagram.svg" alt="Pipeline DAG" width="800" />
+</p>
+
 # BDB-Genomics RNA-seq Pipeline
 
-A modular, industry-standard Snakemake workflow for paired-end bulk RNA-seq processing — from raw FASTQ files to quantified gene expression, QC gating, and comprehensive reporting.
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://github.com/BDB-Genomics/RNAseq-pipeline/actions"><img src="https://img.shields.io/badge/Status-Integration_Testing-orange" alt="Status"></a>
+  <a href="https://snakemake.readthedocs.io"><img src="https://img.shields.io/badge/Snakemake-≥7.0-brightgreen.svg" alt="Snakemake"></a>
+</p>
 
-## Features
+<p align="center">
+  <img src="assets/readme_animation.svg" alt="RNA-seq Pipeline Overview" width="820" />
+</p>
 
-- **Modular architecture** — Each tool is a self-contained rule with isolated Conda environments
-- **Comprehensive QC** — fastp, FastQC, RSeQC, samtools stats, Preseq, QC gate
-- **Accurate quantification** — STAR alignment + featureCounts gene-level counting
-- **Reproducible** — Conda + Singularity containerization, per-rule versions pinned
-- **Production-ready** — Config validation, resource management, SLURM/local profiles
-- **Extensible** — Add advanced integrations (DE, fusion detection) without touching core
-
-## Pipeline Overview
-
-```
-FASTQ → fastp → fastqc → STAR → samtools_sort → markduplicates
-                                                      ↓
-                        samtools_index ←────────────────┘
-                              ↓
-                        samtools_stats → rseqc → preseq
-                              ↓
-                        featurecounts → deseq2_prep
-                              ↓
-                           multiqc
-```
+> A modular, industry-standard Snakemake workflow for paired-end bulk RNA-seq processing — from raw FASTQ files to quantified gene expression, QC gating, and comprehensive reporting.
 
 ## Status
 
