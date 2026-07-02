@@ -27,12 +27,12 @@ rule markduplicates:
     shell:
         """
         set -euo pipefail && \
-        picard MarkDuplicates \
+        picard --java-options {params.java_opts} \
+        MarkDuplicates \
         -I {input.bam} \
         -O {output.bam} \
         -M {output.metrics} \
         --DUPLICATE_SCORING_STRATEGY {params.duplicate_scoring_strategy} \
         --OPTICAL_DUPLICATE_PIXEL_DISTANCE {params.optical_duplicate_pixel_distance} \
-        --java-options {params.java_opts} \
         2> {log}
         """

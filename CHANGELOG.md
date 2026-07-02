@@ -4,6 +4,18 @@ Notable changes to the BDB-Genomics RNA-seq Pipeline are recorded here.
 
 ## [Unreleased]
 
+## [v1.1.0] - 2026-07-03
+
+### Added
+- Added `test_envs.sh` script to dynamically validate all 12 Conda/Mamba environments with automatic exit cleanup.
+
+### Fixed
+- Relocated Java options configuration in `rules/markduplicates.smk` to execute Picard MarkDuplicates correctly.
+
+### Removed
+- Removed obsolete matplotlib visualization scripts (`scripts/generate_flowchart.py`, `scripts/generate_dag.py`) and static image assets (`pipeline_flowchart.png`, `pipeline_dag.dot`).
+- Removed unused local workspace configuration (`rules/atacseq.code-workspace`).
+
 ## [v1.0.0] - 2026-04-17
 
 Initial release of the modular RNA-seq Pipeline — a production-grade, industry-standard Snakemake workflow for paired-end bulk RNA-seq processing.
