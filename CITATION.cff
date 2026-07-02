@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Bhandary"
+    given-names: "Himanshu"
+    email: "2032ushimanshu@gmail.com"
+    affiliation: "BDB-Genomics"
+title: "BDB-Genomics RNA-seq Framework"
+version: 1.2.0
+date-released: 2026-07-03
+url: "https://github.com/BDB-Genomics/bdb-rnaseq"
+repository-code: "https://github.com/BDB-Genomics/bdb-rnaseq"
+license: MIT
+keywords:
+  - "RNA-seq"
+  - "Bioinformatics"
+  - "Snakemake"
+  - "Genomics"
+  - "Reproducibility"
+abstract: "A production-grade, modular, and containerized Snakemake framework for end-to-end bulk RNA-seq data analysis, from raw reads to STAR alignment, featureCounts quantification, RSeQC quality control, and downstream DESeq2-ready expression analysis."
