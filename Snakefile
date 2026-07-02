@@ -8,10 +8,21 @@ import csv
 import subprocess
 from pathlib import Path
 
-configfile: "config.yaml"
+# Detect config file from command line arguments dynamically
+import sys
+config_file = "config.yaml"
+for i, arg in enumerate(sys.argv):
+    if arg == "--configfile" and i + 1 < len(sys.argv):
+        config_file = sys.argv[i + 1]
+        break
+    elif arg.startswith("--configfile="):
+        config_file = arg.split("=", 1)[1]
+        break
+
+configfile: config_file
 
 subprocess.run(
-    ["python3", "rules/scripts/validate_config.py", "config.yaml"],
+    ["python3", "rules/scripts/validate_config.py", config_file],
     check=True,
 )
 

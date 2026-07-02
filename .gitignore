@@ -69,6 +69,7 @@ pip-delete-this-directory.txt
 *.sa
 
 # --- Reference files (user-provided) --------------------
+data/
 
 # --- Logs ------------------------------------------------
 *.log
