@@ -4,7 +4,7 @@
 
 # --- Project Metadata ---------------------------------------------------------
 global:
-  samples: "data/fastp/samples.tsv"
+  samples: "data/samples.tsv"
   envs:
     main: "envs/main.yaml"
   index: "path/to/star/index"           # REPLACE with your STAR genome index directory
@@ -130,7 +130,7 @@ featurecounts:
 deseq2_prep:
   input:
     counts: "results/featurecounts/counts.txt"
-    samples: "data/fastp/samples.tsv"
+    samples: "data/samples.tsv"
   output:
     dir: "results/deseq2"
   params:

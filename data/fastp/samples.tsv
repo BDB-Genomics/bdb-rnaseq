@@ -1,2 +1,0 @@
-sample	fastq_r1	fastq_r2	replicate	condition
-sample1	data/fastq/sample1_R1.fastq.gz	data/fastq/sample1_R2.fastq.gz	1	RNAseq
