@@ -6,7 +6,7 @@ rule samtools_stats:
         stats=f"{config['samtools_stats']['output']['stats']}/{{sample}}_postFiltering.stats.txt"
     
     resources:
-        mem_mb=config['samtools_stats']['resources']['mem_mb'], 
+        mem_mb=config['samtools_stats']['resources']['mem_mb'],
         time=config['samtools_stats']['resources']['time']
                     
     benchmark: "benchmarks/samtools_stats/{sample}.txt"
@@ -15,7 +15,9 @@ rule samtools_stats:
     container: "https://depot.galaxyproject.org/singularity/samtools:1.21--h96c455f_1"
     threads: config['samtools_stats']['threads']
 
-    message: "[SAMTOOLS STATISTICS] SAMPLE: {wildcards.sample} | INPUT: {input.bam} | OUTPUT: {output.stats}"
+    message: 
+        "[SAMTOOLS STATISTICS] SAMPLE: {wildcards.sample} | INPUT: {input.bam} | OUTPUT: {output.stats}"
+        
     shell:
         """
         set -euo pipefail && \
@@ -23,5 +25,5 @@ rule samtools_stats:
         -@ {threads} \
         {input.bam} \
         > {output.stats} \
-        2> {log} 
+        2> {log}
         """

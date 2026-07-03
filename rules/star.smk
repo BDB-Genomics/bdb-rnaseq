@@ -12,7 +12,7 @@ rule star_align:
         out_prefix = f"{config['star']['output']['dir']}/{{sample}}",
         overhang = config['star']['params']['sjdbOverhang']
 
-    resources:  
+    resources:
         mem_mb = config['star']['resources']['mem_mb'],
         time = config['star']['resources']['time']
 

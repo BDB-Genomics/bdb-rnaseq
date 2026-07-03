@@ -6,8 +6,8 @@ rule samtools_index:
         indexed_bam=f"{config['samtools_index']['output']['index']}/{{sample}}.sorted.dup.bam.bai"
 
     resources:
-        mem_mb=config['samtools_index']['resources']['mem_mb'], 
-        time=config['samtools_index']['resources']['time']     
+        mem_mb=config['samtools_index']['resources']['mem_mb'],
+        time=config['samtools_index']['resources']['time']
         
     benchmark: "benchmarks/samtools_index/{sample}.txt"
     log: "logs/samtools_index/{sample}.log"

@@ -1,3 +1,4 @@
+name: rseqc_env
 channels:
   - bioconda
   - conda-forge

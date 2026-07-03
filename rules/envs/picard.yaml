@@ -1,3 +1,4 @@
+name: picard_env
 channels:
   - bioconda
   - conda-forge
