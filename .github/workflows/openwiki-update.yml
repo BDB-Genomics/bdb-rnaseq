@@ -1,6 +1,8 @@
 name: OpenWiki Update
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
   schedule:
     - cron: "0 8 * * *" # Runs daily at 08:00 UTC
@@ -30,7 +32,7 @@ jobs:
         run: |
           # If the openwiki/ directory doesn't exist, initialize it; otherwise, update it.
           if [ ! -d "openwiki" ]; then
-            openwiki --init -p "Initialize OpenWiki documentation for CUT&RUN pipeline"
+            openwiki --init -p "Initialize OpenWiki documentation for RNA-seq pipeline"
           else
             openwiki --update -p "Update OpenWiki documentation with recent changes"
           fi
