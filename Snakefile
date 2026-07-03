@@ -130,3 +130,15 @@ rule all:
         DESEQ2_TARGETS,
         QC_GATE_TARGETS,
         REPORT_TARGETS
+
+onstart:
+    print(f"\n[START] BDB-Genomics RNA-seq Pipeline")
+    print(f"Samples: {len(SAMPLES)} samples detected\n")
+
+onsuccess:
+    print(f"\n[SUCCESS] Pipeline completed successfully!")
+    subprocess.run(["python3", "rules/scripts/aggregate_logs.py", "success"])
+
+onerror:
+    print(f"\n[ERROR] Pipeline encountered an error.")
+    subprocess.run(["python3", "rules/scripts/aggregate_logs.py", "error"])
