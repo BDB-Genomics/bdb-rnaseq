@@ -54,12 +54,18 @@ def get_config_path(config: dict[str, Any], path_keys: tuple[str, ...]) -> str:
         if isinstance(curr, dict):
             curr = curr.get(k)
             if curr is None:
-                print(f"ERROR: Missing required config key: {'.'.join(path_keys)}", file=sys.stderr)
+                print(
+                    f"ERROR: Missing required config key: {'.'.join(path_keys)}",
+                    file=sys.stderr,
+                )
                 sys.exit(1)
         else:
-            print(f"ERROR: Missing required config key: {'.'.join(path_keys)}", file=sys.stderr)
+            print(
+                f"ERROR: Missing required config key: {'.'.join(path_keys)}",
+                file=sys.stderr,
+            )
             sys.exit(1)
-    
+
     val_str = str(curr)
     if re.match(r"^(True|False|None)$", val_str, re.IGNORECASE):
         print(
@@ -83,37 +89,43 @@ def run_batch(
     """Run snakemake for a single batch of samples."""
     target_files = []
     for s in samples:
-        target_files.extend([
-            f"{get_config_path(config, ('fastp', 'output', 'dir'))}/{s}_R1_trimmed.fastq.gz",
-            f"{get_config_path(config, ('star', 'output', 'dir'))}/{s}Aligned.out.bam",
-            f"{get_config_path(config, ('samtools_sort', 'output', 'sorted_bam'))}/{s}.sorted.bam",
-            f"{get_config_path(config, ('markduplicates', 'output', 'dir'))}/{s}.sorted.dup.bam",
-            f"{get_config_path(config, ('samtools_index', 'output', 'index'))}/{s}.sorted.dup.bam.bai",
-            f"{get_config_path(config, ('samtools_stats', 'output', 'stats'))}/{s}_postFiltering.stats.txt",
-            f"{get_config_path(config, ('qc_gate', 'output', 'dir'))}/{s}_qc_pass.txt",
-            f"{get_config_path(config, ('rseqc', 'output', 'dir'))}/{s}.infer_experiment.txt",
-            f"{get_config_path(config, ('rseqc', 'output', 'dir'))}/{s}.read_distribution.txt",
-            f"{get_config_path(config, ('rseqc', 'output', 'dir'))}/{s}.bam_stat.txt",
-            f"{get_config_path(config, ('rseqc', 'output', 'dir'))}/{s}.geneBodyCoverage.txt",
-            f"{get_config_path(config, ('preseq', 'output', 'dir'))}/{s}.ccurve.txt",
-        ])
+        target_files.extend(
+            [
+                f"{get_config_path(config, ('fastp', 'output', 'dir'))}/{s}_R1_trimmed.fastq.gz",
+                f"{get_config_path(config, ('star', 'output', 'dir'))}/{s}Aligned.out.bam",
+                f"{get_config_path(config, ('samtools_sort', 'output', 'sorted_bam'))}/{s}.sorted.bam",
+                f"{get_config_path(config, ('markduplicates', 'output', 'dir'))}/{s}.sorted.dup.bam",
+                f"{get_config_path(config, ('samtools_index', 'output', 'index'))}/{s}.sorted.dup.bam.bai",
+                f"{get_config_path(config, ('samtools_stats', 'output', 'stats'))}/{s}_postFiltering.stats.txt",
+                f"{get_config_path(config, ('qc_gate', 'output', 'dir'))}/{s}_qc_pass.txt",
+                f"{get_config_path(config, ('rseqc', 'output', 'dir'))}/{s}.infer_experiment.txt",
+                f"{get_config_path(config, ('rseqc', 'output', 'dir'))}/{s}.read_distribution.txt",
+                f"{get_config_path(config, ('rseqc', 'output', 'dir'))}/{s}.bam_stat.txt",
+                f"{get_config_path(config, ('rseqc', 'output', 'dir'))}/{s}.geneBodyCoverage.txt",
+                f"{get_config_path(config, ('preseq', 'output', 'dir'))}/{s}.ccurve.txt",
+            ]
+        )
 
     cmd = [
         "snakemake",
         "--use-conda",
-        "--conda-frontend", conda_frontend,
-        "--cores", str(cores),
-        "--resources", f"mem_mb={memory}",
-        "--profile", "profile/low_resource",
+        "--conda-frontend",
+        conda_frontend,
+        "--cores",
+        str(cores),
+        "--resources",
+        f"mem_mb={memory}",
+        "--profile",
+        "profile/low_resource",
         "--rerun-incomplete",
         "--keep-going",
         *target_files,
         *extra_args,
     ]
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"BATCH {batch_id}: {', '.join(samples)}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Command: {' '.join(cmd)}\n")
 
     result = subprocess.run(cmd)
@@ -121,16 +133,42 @@ def run_batch(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run RNA-seq pipeline in sample batches")
-    parser.add_argument("--batch-size", type=int, default=1, help="Samples per batch (default: 1)")
-    parser.add_argument("--cores", type=int, default=2, help="CPU cores per batch (default: 2)")
-    parser.add_argument("--memory", type=int, default=4000, help="Memory limit in MB (default: 4000)")
-    parser.add_argument("--config", type=str, default="config.yaml", help="Path to config.yaml")
-    parser.add_argument("--sample-sheet", type=str, default="data/samples.tsv", help="Path to sample sheet")
-    parser.add_argument("--conda-frontend", type=str, default="mamba", choices=["conda", "mamba"],
-                        help="Conda frontend: conda or mamba (default: mamba)")
-    parser.add_argument("--dry-run", action="store_true", help="Show batches without running")
-    parser.add_argument("extra_args", nargs=argparse.REMAINDER, help="Extra arguments passed to snakemake")
+    parser = argparse.ArgumentParser(
+        description="Run RNA-seq pipeline in sample batches"
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=1, help="Samples per batch (default: 1)"
+    )
+    parser.add_argument(
+        "--cores", type=int, default=2, help="CPU cores per batch (default: 2)"
+    )
+    parser.add_argument(
+        "--memory", type=int, default=4000, help="Memory limit in MB (default: 4000)"
+    )
+    parser.add_argument(
+        "--config", type=str, default="config.yaml", help="Path to config.yaml"
+    )
+    parser.add_argument(
+        "--sample-sheet",
+        type=str,
+        default="data/samples.tsv",
+        help="Path to sample sheet",
+    )
+    parser.add_argument(
+        "--conda-frontend",
+        type=str,
+        default="mamba",
+        choices=["conda", "mamba"],
+        help="Conda frontend: conda or mamba (default: mamba)",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show batches without running"
+    )
+    parser.add_argument(
+        "extra_args",
+        nargs=argparse.REMAINDER,
+        help="Extra arguments passed to snakemake",
+    )
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parents[2]
@@ -154,12 +192,14 @@ def main() -> None:
     if config_path != default_config_path and config_path.exists():
         with config_path.open(encoding="utf-8") as f:
             custom_config = yaml.safe_load(f) or {}
+
         def merge_dicts(d1: dict[str, Any], d2: dict[str, Any]) -> None:
             for k, v in d2.items():
                 if k in d1 and isinstance(d1[k], dict) and isinstance(v, dict):
                     merge_dicts(d1[k], v)
                 else:
                     d1[k] = v
+
         merge_dicts(config, custom_config)
 
     # Check if sample sheet exists
@@ -179,7 +219,10 @@ def main() -> None:
         sys.exit(1)
 
     # Split into batches
-    batches = [samples[i:i + args.batch_size] for i in range(0, len(samples), args.batch_size)]
+    batches = [
+        samples[i : i + args.batch_size]
+        for i in range(0, len(samples), args.batch_size)
+    ]
 
     print(f"Total samples: {len(samples)}")
     print(f"Batch size: {args.batch_size}")
@@ -196,15 +239,23 @@ def main() -> None:
     # Run batches sequentially
     failed_batches = []
     for i, batch in enumerate(batches, 1):
-        ret = run_batch(batch, i, args.cores, args.memory, config, args.conda_frontend, args.extra_args)
+        ret = run_batch(
+            batch,
+            i,
+            args.cores,
+            args.memory,
+            config,
+            args.conda_frontend,
+            args.extra_args,
+        )
         if ret != 0:
             failed_batches.append((i, batch))
             print(f"WARNING: Batch {i} had errors (exit code {ret})")
 
     # Summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("BATCH SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Total batches: {len(batches)}")
     print(f"Successful: {len(batches) - len(failed_batches)}")
     print(f"Failed: {len(failed_batches)}")
@@ -216,17 +267,22 @@ def main() -> None:
 
     # Run final aggregation steps
     print("\nRunning final aggregation...")
-    multiqc_report_dir = config.get("multiqc", {}).get("output", {}).get("report", "results/multiqc")
+    multiqc_report_dir = (
+        config.get("multiqc", {}).get("output", {}).get("report", "results/multiqc")
+    )
     final_targets = [
         f"{multiqc_report_dir}/multiqc_report.html",
-        f"{config.get('deseq2_prep', {}).get('output', {}).get('dir', 'results/deseq2')}/normalized_counts.txt"
+        f"{config.get('deseq2_prep', {}).get('output', {}).get('dir', 'results/deseq2')}/normalized_counts.txt",
     ]
     final_cmd = [
         "snakemake",
         "--use-conda",
-        "--conda-frontend", args.conda_frontend,
-        "--cores", "1",
-        "--profile", "profile/low_resource",
+        "--conda-frontend",
+        args.conda_frontend,
+        "--cores",
+        "1",
+        "--profile",
+        "profile/low_resource",
         *final_targets,
         *args.extra_args,
     ]

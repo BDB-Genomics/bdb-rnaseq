@@ -110,7 +110,7 @@ def generate_annotation(filepath: str) -> list[dict[str, Any]]:
     all_genes = []
     all_genes += _make_genes("chr1", GENES_CHR1, GENOME["chr1"])
     all_genes += _make_genes("chr2", GENES_CHR2, GENOME["chr2"])
-    
+
     with open(filepath, "w") as fh:
         for g in all_genes:
             c, s, e, st, gid = (
@@ -155,7 +155,9 @@ def generate_refgene_bed(filepath: str, genes: list[dict[str, Any]]) -> None:
             )
 
 
-def extract_transcripts(ref_seqs: dict[str, str], genes: list[dict[str, Any]]) -> dict[str, str]:
+def extract_transcripts(
+    ref_seqs: dict[str, str], genes: list[dict[str, Any]]
+) -> dict[str, str]:
     transcripts = {}
     for g in genes:
         chrom = g["chrom"]
@@ -182,22 +184,22 @@ def generate_fastq_paired(
     with gzip.open(r1_path, "wt") as f1, gzip.open(r2_path, "wt") as f2:
         read_idx = 0
         gene_ids = list(ref.transcripts.keys())
-        
+
         while read_idx < n_reads:
             gene_id = random.choice(gene_ids)
             tx_seq = ref.transcripts[gene_id]
-            
+
             frag_len = max(
                 READ_LENGTH + 10,
                 min(int(random.gauss(FRAGMENT_MEAN, FRAGMENT_SD)), len(tx_seq)),
             )
-            
+
             if len(tx_seq) <= frag_len:
                 continue
-                
+
             pos = random.randint(0, len(tx_seq) - frag_len)
             fragment = tx_seq[pos : pos + frag_len]
-            
+
             f1.write(f"@READ{read_idx:06d}/1\n{fragment[:READ_LENGTH]}\n+\n{quals}\n")
             f2.write(
                 f"@READ{read_idx:06d}/2\n{reverse_complement(fragment[-READ_LENGTH:])}\n+\n{quals}\n"
@@ -255,7 +257,7 @@ def main() -> None:
     print("=" * 60)
     print("Generating synthetic CI test data for RNA-seq")
     print("=" * 60)
-    
+
     for subdir in [
         "data/fastq",
         "data/reference/star_index",
@@ -281,7 +283,9 @@ def main() -> None:
     transcripts = extract_transcripts(genome_seqs, genes)
 
     print("[4/6] STAR Genome index ...")
-    generate_star_index(os.path.join(root, "data/reference/star_index"), genome_fa, annotation_gtf)
+    generate_star_index(
+        os.path.join(root, "data/reference/star_index"), genome_fa, annotation_gtf
+    )
 
     print(f"[5/6] Paired-end FASTQs ({READS_PER_SAMPLE} reads/sample) ...")
     ref_data = ReferenceData(

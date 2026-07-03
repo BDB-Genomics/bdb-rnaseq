@@ -21,31 +21,46 @@ SAMPLES_LIST_USAGE_PATTERN = re.compile(r"sample\s*=\s*config\[['\"]samples['\"]
 
 # ANSI Color codes
 class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
+    HEADER = "\033[95m"
+    BLUE = "\033[94m"
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
 
 
 def fail(errors: list[str]) -> None:
-    print(f"\n{Colors.BOLD}{Colors.RED}┏━ CONFIGURATION VALIDATION FAILED ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{Colors.ENDC}")
-    
+    print(
+        f"\n{Colors.BOLD}{Colors.RED}┏━ CONFIGURATION VALIDATION FAILED ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{Colors.ENDC}"
+    )
+
     # Categorize errors
     categories: dict[str, list[str]] = {
         "Reference Files": [],
         "Sample Sheet": [],
         "Schema/Keys": [],
-        "Parameters": []
+        "Parameters": [],
     }
-    
+
     for msg in errors:
-        if any(x in msg for x in ["path not found", "not a file", "directory (or Genome file) not found", "Index prefix"]):
+        if any(
+            x in msg
+            for x in [
+                "path not found",
+                "not a file",
+                "directory (or Genome file) not found",
+                "Index prefix",
+            ]
+        ):
             categories["Reference Files"].append(msg)
-        elif "Sample sheet" in msg or "sample ID" in msg or "FASTQ" in msg or "Sample '" in msg:
+        elif (
+            "Sample sheet" in msg
+            or "sample ID" in msg
+            or "FASTQ" in msg
+            or "Sample '" in msg
+        ):
             categories["Sample Sheet"].append(msg)
         elif "Missing config key" in msg:
             categories["Schema/Keys"].append(msg)
@@ -59,12 +74,18 @@ def fail(errors: list[str]) -> None:
                 print(f"    • {m}")
                 # Add specific hints
                 if "data/" in m:
-                    parts = m.split(':')
+                    parts = m.split(":")
                     path_part = parts[-1].strip() if len(parts) > 1 else m
-                    print(f"      {Colors.CYAN}Hint: Check if the file exists at: {Path(path_part).absolute()}{Colors.ENDC}")
+                    print(
+                        f"      {Colors.CYAN}Hint: Check if the file exists at: {Path(path_part).absolute()}{Colors.ENDC}"
+                    )
 
-    print(f"\n{Colors.BOLD}{Colors.RED}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{Colors.ENDC}")
-    print(f"\n{Colors.YELLOW}Check your 'config.yaml' and ensure all required data is in the 'data/' directory.{Colors.ENDC}\n")
+    print(
+        f"\n{Colors.BOLD}{Colors.RED}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{Colors.ENDC}"
+    )
+    print(
+        f"\n{Colors.YELLOW}Check your 'config.yaml' and ensure all required data is in the 'data/' directory.{Colors.ENDC}\n"
+    )
     sys.exit(1)
 
 
@@ -77,14 +98,22 @@ def resolve_cli_path(raw_path: str | Path, root: Path) -> Path:
     if path.is_absolute():
         resolved = path.resolve()
         if not resolved.is_relative_to(root):
-            fail([f"Security Error: Config path '{resolved}' is outside the project workspace '{root}'."])
+            fail(
+                [
+                    f"Security Error: Config path '{resolved}' is outside the project workspace '{root}'."
+                ]
+            )
         return resolved
     cwd_candidate = (Path.cwd() / path).resolve()
     if cwd_candidate.exists() and cwd_candidate.is_relative_to(root):
         return cwd_candidate
     root_candidate = (root / path).resolve()
     if not root_candidate.is_relative_to(root):
-        fail([f"Security Error: Config path '{root_candidate}' is outside the project workspace '{root}'."])
+        fail(
+            [
+                f"Security Error: Config path '{root_candidate}' is outside the project workspace '{root}'."
+            ]
+        )
     return root_candidate
 
 
@@ -108,7 +137,7 @@ def load_config(config_path: Path, errors: list[str]) -> dict[str, Any]:
 def candidate_paths(raw_value: str, bases: list[Path], root: Path) -> list[Path]:
     raw_path = Path(raw_value).expanduser()
     candidates: list[Path] = []
-    
+
     if raw_path.is_absolute():
         resolved = raw_path.resolve()
         if resolved.is_relative_to(root):
@@ -150,13 +179,17 @@ def has_config_value(config: dict[str, Any], keys: tuple[str, ...]) -> bool:
     return True
 
 
-def collect_required_config_paths(root: Path, errors: list[str]) -> list[tuple[str, ...]]:
+def collect_required_config_paths(
+    root: Path, errors: list[str]
+) -> list[tuple[str, ...]]:
     paths: set[tuple[str, ...]] = set()
     workflow_files = [root / "Snakefile", *sorted((root / "rules").glob("*.smk"))]
 
     for workflow_file in workflow_files:
         if not workflow_file.exists():
-            errors.append(f"Workflow file not found while discovering config paths: {workflow_file}")
+            errors.append(
+                f"Workflow file not found while discovering config paths: {workflow_file}"
+            )
             continue
 
         with workflow_file.open("r", encoding="utf-8") as handle:
@@ -175,7 +208,10 @@ def validate_required_config_paths(
     missing_prefixes: set[tuple[str, ...]] = set()
 
     for path_keys in required_paths:
-        if any(path_keys[:prefix_len] in missing_prefixes for prefix_len in range(1, len(path_keys))):
+        if any(
+            path_keys[:prefix_len] in missing_prefixes
+            for prefix_len in range(1, len(path_keys))
+        ):
             continue
         if not has_config_value(config, path_keys):
             missing_prefixes.add(path_keys)
@@ -183,18 +219,28 @@ def validate_required_config_paths(
 
 
 def validate_scalar_config_values(config: dict[str, Any], errors: list[str]) -> None:
-    positive_int_suffixes = ("threads", "mem_mb", "trim_front1", "trim_front2", "length_required")
+    positive_int_suffixes = (
+        "threads",
+        "mem_mb",
+        "trim_front1",
+        "trim_front2",
+        "length_required",
+    )
 
     for suffix in positive_int_suffixes:
         for path_keys in iter_matching_paths(config, suffix):
             value = get_config_value(config, path_keys)
             if not isinstance(value, int) or value <= 0:
-                errors.append(f"Config value '{'.'.join(path_keys)}' must be a positive integer.")
+                errors.append(
+                    f"Config value '{'.'.join(path_keys)}' must be a positive integer."
+                )
 
     for path_keys in iter_matching_paths(config, "time"):
         value = get_config_value(config, path_keys)
         if not isinstance(value, str) or not value.strip():
-            errors.append(f"Config value '{'.'.join(path_keys)}' must be a non-empty string.")
+            errors.append(
+                f"Config value '{'.'.join(path_keys)}' must be a non-empty string."
+            )
 
 
 def iter_matching_paths(config: dict[str, Any], leaf_key: str) -> list[tuple[str, ...]]:
@@ -220,15 +266,20 @@ def validate_samples_sheet(
     if samples_value is None:
         return []
     if not isinstance(samples_value, str) or not samples_value.strip():
-        errors.append("Config key 'global.samples' must be a non-empty path string to a TSV sample sheet.")
+        errors.append(
+            "Config key 'global.samples' must be a non-empty path string to a TSV sample sheet."
+        )
         return []
 
     bases = [config_path.parent, root, Path.cwd()]
     samples_path = resolve_existing_path(samples_value, bases, root)
     if samples_path is None:
-        rendered = ", ".join(str(path) for path in candidate_paths(samples_value, bases, root))
+        rendered = ", ".join(
+            str(path) for path in candidate_paths(samples_value, bases, root)
+        )
         errors.append(
-            "Sample sheet not found for config key 'global.samples'. Checked: " + rendered
+            "Sample sheet not found for config key 'global.samples'. Checked: "
+            + rendered
         )
         return []
     if not samples_path.is_file():
@@ -243,10 +294,13 @@ def validate_samples_sheet(
             return []
 
         reader.fieldnames = [name.strip() if name else "" for name in reader.fieldnames]
-        missing_columns = [column for column in SAMPLE_COLUMNS if column not in reader.fieldnames]
+        missing_columns = [
+            column for column in SAMPLE_COLUMNS if column not in reader.fieldnames
+        ]
         if missing_columns:
             errors.append(
-                "Sample sheet is missing required columns: " + ", ".join(missing_columns)
+                "Sample sheet is missing required columns: "
+                + ", ".join(missing_columns)
             )
             return []
 
@@ -273,7 +327,9 @@ def validate_samples_sheet(
             seen_samples.add(sample)
 
             if not condition:
-                errors.append(f"Missing condition for sample '{sample}' at row {row_number}.")
+                errors.append(
+                    f"Missing condition for sample '{sample}' at row {row_number}."
+                )
 
             replicate = None
             try:
@@ -295,10 +351,14 @@ def validate_samples_sheet(
                 seen_condition_replicates.add(pair)
 
             if not r1 or not r2:
-                errors.append(f"Missing FASTQ path(s) for sample '{sample}' at row {row_number}.")
+                errors.append(
+                    f"Missing FASTQ path(s) for sample '{sample}' at row {row_number}."
+                )
                 continue
             if r1 == r2:
-                errors.append(f"FASTQ R1 and R2 are identical for sample '{sample}' at row {row_number}.")
+                errors.append(
+                    f"FASTQ R1 and R2 are identical for sample '{sample}' at row {row_number}."
+                )
 
             fastq_bases = [samples_path.parent, config_path.parent, root, Path.cwd()]
             resolved_r1 = resolve_existing_path(r1, fastq_bases, root)
@@ -314,7 +374,8 @@ def validate_samples_sheet(
                 )
 
             control = row.get("control", "NONE")
-            if not control: control = "NONE"
+            if not control:
+                control = "NONE"
 
             records.append(
                 {
@@ -323,7 +384,7 @@ def validate_samples_sheet(
                     "replicate": replicate,
                     "fastq_r1": resolved_r1,
                     "fastq_r2": resolved_r2,
-                    "control": control
+                    "control": control,
                 }
             )
 
@@ -360,20 +421,38 @@ def validate_fastp_input_mapping(
 
     for sample_name, pair in fastp_input.items():
         if not isinstance(pair, dict):
-            errors.append(f"Config key 'fastp.input.{sample_name}' must be a mapping with R1/R2.")
+            errors.append(
+                f"Config key 'fastp.input.{sample_name}' must be a mapping with R1/R2."
+            )
             continue
         r1 = pair.get("R1")
         r2 = pair.get("R2")
         if not isinstance(r1, str) or not r1.strip():
-            errors.append(f"Config key 'fastp.input.{sample_name}.R1' must be a non-empty string.")
+            errors.append(
+                f"Config key 'fastp.input.{sample_name}.R1' must be a non-empty string."
+            )
         if not isinstance(r2, str) or not r2.strip():
-            errors.append(f"Config key 'fastp.input.{sample_name}.R2' must be a non-empty string.")
-        resolved_r1 = resolve_existing_path(r1, bases, root) if isinstance(r1, str) and r1.strip() else None
-        resolved_r2 = resolve_existing_path(r2, bases, root) if isinstance(r2, str) and r2.strip() else None
+            errors.append(
+                f"Config key 'fastp.input.{sample_name}.R2' must be a non-empty string."
+            )
+        resolved_r1 = (
+            resolve_existing_path(r1, bases, root)
+            if isinstance(r1, str) and r1.strip()
+            else None
+        )
+        resolved_r2 = (
+            resolve_existing_path(r2, bases, root)
+            if isinstance(r2, str) and r2.strip()
+            else None
+        )
         if isinstance(r1, str) and r1.strip() and resolved_r1 is None:
-            errors.append(f"Configured FASTQ file not found: fastp.input.{sample_name}.R1 -> {r1}")
+            errors.append(
+                f"Configured FASTQ file not found: fastp.input.{sample_name}.R1 -> {r1}"
+            )
         if isinstance(r2, str) and r2.strip() and resolved_r2 is None:
-            errors.append(f"Configured FASTQ file not found: fastp.input.{sample_name}.R2 -> {r2}")
+            errors.append(
+                f"Configured FASTQ file not found: fastp.input.{sample_name}.R2 -> {r2}"
+            )
         input_records[sample_name] = (resolved_r1, resolved_r2)
 
     if not sample_records:
@@ -389,7 +468,11 @@ def validate_fastp_input_mapping(
             details.append("only in sample sheet: " + ", ".join(only_sheet))
         if only_fastp:
             details.append("only in fastp.input: " + ", ".join(only_fastp))
-        errors.append("Sample IDs differ between top-level sample sheet and fastp.input (" + "; ".join(details) + ").")
+        errors.append(
+            "Sample IDs differ between top-level sample sheet and fastp.input ("
+            + "; ".join(details)
+            + ")."
+        )
 
     for record in sample_records:
         sample = record["sample"]
@@ -410,7 +493,7 @@ def validate_path_checks(
     config: dict[str, Any], config_path: Path, root: Path, errors: list[str]
 ) -> None:
     bases = [config_path.parent, root, Path.cwd()]
-    
+
     def walk(prefix: tuple[str, ...], node: Any) -> None:
         if not isinstance(node, dict):
             return
@@ -421,25 +504,31 @@ def validate_path_checks(
             elif isinstance(value, str) and value.strip():
                 # Dynamically validate static reference file paths (under global)
                 # or pipeline tool resources (script/config)
-                is_global_ref = (next_prefix[0] == "global" and (
-                    key.endswith(("_fa", "_bed", "_gtf", "_index", "_sizes", "_db")) or
-                    key in ("index", "gtf", "refgene", "main")
-                ))
-                is_tool_resource = (key in ("script", "config"))
+                is_global_ref = next_prefix[0] == "global" and (
+                    key.endswith(("_fa", "_bed", "_gtf", "_index", "_sizes", "_db"))
+                    or key in ("index", "gtf", "refgene", "main")
+                )
+                is_tool_resource = key in ("script", "config")
 
                 if is_global_ref or is_tool_resource:
                     if key == "index":
                         if not star_index_exists(value, bases, root):
-                            errors.append(f"STAR index directory (or Genome file) not found for config key '{'.'.join(next_prefix)}': {value}")
+                            errors.append(
+                                f"STAR index directory (or Genome file) not found for config key '{'.'.join(next_prefix)}': {value}"
+                            )
                     elif key == "samples":
                         # Handled separately by validate_samples_sheet
                         continue
                     else:
                         resolved = resolve_existing_path(value, bases, root)
                         if resolved is None:
-                            errors.append(f"Configured path not found for '{'.'.join(next_prefix)}': {value}")
+                            errors.append(
+                                f"Configured path not found for '{'.'.join(next_prefix)}': {value}"
+                            )
                         elif not resolved.is_file():
-                            errors.append(f"Configured path for '{'.'.join(next_prefix)}' must be a file: {resolved}")
+                            errors.append(
+                                f"Configured path for '{'.'.join(next_prefix)}' must be a file: {resolved}"
+                            )
 
     walk((), config)
 
@@ -451,7 +540,9 @@ def star_index_exists(index_dir: str, bases: list[Path], root: Path) -> bool:
     return False
 
 
-def validate_samples_usage(root: Path, config: dict[str, Any], errors: list[str]) -> None:
+def validate_samples_usage(
+    root: Path, config: dict[str, Any], errors: list[str]
+) -> None:
     samples_value = get_config_value(config, ("global", "samples"))
     if isinstance(samples_value, list):
         return
@@ -485,7 +576,9 @@ def validate_conda_environments(root: Path, errors: list[str]) -> None:
                     resolved_path = (root / conda_path_str).resolve()
                     if not resolved_path.exists():
                         # Fallback to smk-relative
-                        resolved_path = (workflow_file.parent / conda_path_str).resolve()
+                        resolved_path = (
+                            workflow_file.parent / conda_path_str
+                        ).resolve()
                     if not resolved_path.exists():
                         errors.append(
                             f"Conda environment file not found: '{conda_path_str}' "
@@ -518,7 +611,9 @@ def main() -> None:
     if samples_value is None:
         fail(["Missing config key: global.samples"])
 
-    samples_path = resolve_existing_path(str(samples_value), [config_path.parent, root, Path.cwd()], root)
+    samples_path = resolve_existing_path(
+        str(samples_value), [config_path.parent, root, Path.cwd()], root
+    )
     print(f"[CONFIG VALIDATION] OK: {samples_path}")
 
 

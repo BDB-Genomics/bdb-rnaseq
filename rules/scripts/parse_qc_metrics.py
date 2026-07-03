@@ -99,7 +99,7 @@ def main() -> None:
 
     # 2. Calculate Derived Metrics safely
     total_reads = stats["total_reads"]
-    
+
     mapping_rate = 0.0
     if total_reads > 0:
         mapping_rate = (stats["mapped_reads"] * 100.0) / total_reads
@@ -112,9 +112,21 @@ def main() -> None:
     qc_data: dict[str, Any] = {
         "sample": args.sample,
         "metrics": {
-            "total_reads": {"val": total_reads, "target": args.min_total_reads, "status": "PASS"},
-            "mapping": {"val": mapping_rate, "target": args.min_mapping_rate, "status": "PASS"},
-            "duplicates": {"val": dup_rate, "target": args.max_duplicate_rate, "status": "PASS"},
+            "total_reads": {
+                "val": total_reads,
+                "target": args.min_total_reads,
+                "status": "PASS",
+            },
+            "mapping": {
+                "val": mapping_rate,
+                "target": args.min_mapping_rate,
+                "status": "PASS",
+            },
+            "duplicates": {
+                "val": dup_rate,
+                "target": args.max_duplicate_rate,
+                "status": "PASS",
+            },
         },
         "overall": "PASSED",
     }

@@ -81,8 +81,7 @@ def compute_pca(normalized: pd.DataFrame, n_top: int = 500) -> pd.DataFrame:
     U, S, Vt = np.linalg.svd(centered, full_matrices=False)
     pc_coords = U[:, :2] * S[:2]
     pca_df = pd.DataFrame(
-        {"PC1": pc_coords[:, 0], "PC2": pc_coords[:, 1]},
-        index=data.index
+        {"PC1": pc_coords[:, 0], "PC2": pc_coords[:, 1]}, index=data.index
     )
     return pca_df
 

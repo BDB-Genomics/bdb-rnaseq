@@ -26,7 +26,9 @@ def parse_benchmarks(benchmarks_dir: pathlib.Path) -> list[dict[str, Any]]:
 
     for filepath in sorted(benchmarks_dir.rglob("*.txt")):
         rule_name = filepath.parent.name
-        sample_name = filepath.sample_name if hasattr(filepath, "sample_name") else filepath.stem
+        sample_name = (
+            filepath.sample_name if hasattr(filepath, "sample_name") else filepath.stem
+        )
         try:
             with open(filepath, "r") as f:
                 reader = csv.DictReader(f, delimiter="\t")
