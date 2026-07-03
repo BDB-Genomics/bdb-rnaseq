@@ -1,163 +1,107 @@
-<p align="center">
-  <img src="assets/pipeline_diagram.svg" alt="Pipeline DAG" width="800" />
-</p>
-
 # BDB-Genomics RNA-seq Pipeline
 
-<p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://github.com/BDB-Genomics/RNAseq-pipeline/actions"><img src="https://img.shields.io/badge/Status-Integration_Testing-orange" alt="Status"></a>
-  <a href="https://snakemake.readthedocs.io"><img src="https://img.shields.io/badge/Snakemake-≥7.0-brightgreen.svg" alt="Snakemake"></a>
-</p>
+A production-grade, config-driven Snakemake framework for paired-end bulk RNA-seq processing. 
 
-<p align="center">
-  <img src="assets/readme_animation.svg" alt="RNA-seq Pipeline Overview" width="820" />
-</p>
-
-> A modular, industry-standard Snakemake workflow for paired-end bulk RNA-seq processing — from raw FASTQ files to quantified gene expression, QC gating, and comprehensive reporting.
-
-## Status
-
-- Fully resolved DAG with validated I/O contracts
-- 4 new rules added: markduplicates, rseqc, preseq, deseq2_prep
-- Ready for integration testing and iteration toward industry-standard parity
-
-## Repository Layout
-
-```
-.
-├── Snakefile                 # Main Snakemake entry point
-├── config.yaml               # Central configuration (all rules)
-├── rules/
-│   ├── *.smk                # Modular rule files
-│   ├── envs/                 # Per-rule Conda environments
-│   └── scripts/              # Helper scripts (validate_config.py, etc.)
-├── profiles/
-│   ├── local/               # Local execution profile
-│   └── slurm/                # SLURM cluster profile
-├── scripts/
-│   ├── run_pipeline.sh      # Wrapper script for execution
-│   └── directory_structure.sh # Create expected directory layout
-└── data/
-    └── fastp/samples.tsv     # Sample sheet
-```
-
-## Inputs
-
-The pipeline expects:
-
-- `config.yaml` — Central configuration file
-- `data/fastp/samples.tsv` — Sample sheet with FASTQ paths and metadata
-- Reference files — STAR genome index, GTF annotation, RSeQC refGene BED (configure in `config.yaml`)
-
-### Sample Sheet Format
-
-`data/fastp/samples.tsv` must contain:
-
-| Column | Description |
-|--------|-------------|
-| `sample` | Unique sample identifier |
-| `fastq_r1` | Path to R1 FASTQ |
-| `fastq_r2` | Path to R2 FASTQ |
-| `replicate` | Replicate number (positive integer) |
-| `condition` | Experimental condition |
-
-Optional: `control` — path to control sample or `NONE`
-
-Example:
-
-```tsv
-sample	fastq_r1	fastq_r2	replicate	condition
-sample1	data/fastq/sample1_R1.fastq.gz	data/fastq/sample1_R2.fastq.gz	1	control
-sample2	data/fastq/sample2_R1.fastq.gz	data/fastq/sample2_R2.fastq.gz	1	treatment
-```
-
-## Quick Start
-
-### 1. Configure
-
-Edit `config.yaml` and set:
-
-```yaml
-global:
-  samples: "data/fastp/samples.tsv"
-  index: "/path/to/star/index"        # Generate with STAR --runMode genomeGenerate
-  gtf: "/path/to/annotation.gtf"      # GTF annotation file
-  refgene: "/path/to/refgene.bed"     # RSeQC reference gene BED
-
-star:
-  params:
-    index: "/path/to/star/index"
-    sjdbOverhang: 100                  # Read length - 1
-```
-
-### 2. Dry Run
-
-```bash
-scripts/run_pipeline.sh --dry-run
-```
-
-### 3. Run
-
-```bash
-scripts/run_pipeline.sh --cores 8
-```
-
-### 4. SLURM Cluster
-
-```bash
-snakemake --profile profiles/slurm --configfile config.yaml
-```
-
-## Configuration
-
-`config.yaml` is organized by rule. Key sections:
-
-| Section | Purpose |
-|---------|---------|
-| `global` | Samples, references (STAR index, GTF, refGene) |
-| `fastp` | Trimming parameters |
-| `fastqc` | Post-trim QC |
-| `star` | Splice-aware alignment |
-| `samtools_sort` | BAM sorting |
-| `markduplicates` | PCR duplicate marking |
-| `samtools_index` | BAM indexing |
-| `samtools_stats` | Alignment statistics |
-| `rseqc` | RNA-seq QC metrics |
-| `preseq` | Library complexity estimation |
-| `featurecounts` | Gene quantification |
-| `deseq2_prep` | Normalized counts, PCA, correlation |
-| `qc_gate` | Threshold-based QC filtering |
-| `multiqc` | Aggregate QC reporting |
-
-## Outputs
-
-| Directory | Contents |
-|-----------|----------|
-| `results/fastp/` | Trimmed FASTQs, JSON/HTML reports |
-| `results/fastqc/` | FastQC HTML/ZIP reports |
-| `results/star/` | Aligned BAMs, alignment logs |
-| `results/markduplicates/` | Dup-marked BAMs, metrics |
-| `results/samtools_index/` | BAM indices |
-| `results/samtools_stats/` | Alignment statistics |
-| `results/rseqc/` | Gene body coverage, strand inference, read distribution |
-| `results/preseq/` | Library complexity curves |
-| `results/featurecounts/` | Raw counts matrix |
-| `results/deseq2/` | VST-normalized counts, PCA, correlation |
-| `results/qc_gate/` | QC pass/fail per sample |
-| `results/multiqc/` | Aggregated QC report |
-
-## Requirements
-
-- Snakemake ≥7.0
-- Conda (for `--use-conda`)
-- Python ≥3.9
-- Reference files (STAR index, GTF, refGene BED)
-
-## License
-
-See [LICENSE](LICENSE).
+Built for resilience, it handles the full lifecycle from raw FASTQ reads through splice-aware alignment, transcript quantification, and differential expression prep, while automatically scaling from local machines to HPC clusters and Cloud instances.
 
 ---
 
-Built by [BDB-Genomics](https://github.com/bdb-genomics) — advancing discoveries through modular, industry-standard computational tools.
+## 🏗️ Pipeline Architecture
+
+```mermaid
+graph TD
+    %% ── Stage 1: Preprocessing ──
+    Raw[Raw FASTQ Files] --> FastP[fastp<br>QC & Trimming]
+    FastP --> FastQC[FastQC]
+
+    %% ── Stage 2: Alignment & Sorting ──
+    FastP --> STAR[STAR<br>Splice-aware Alignment]
+    STAR --> Sort[samtools sort]
+    
+    %% ── Stage 3: Duplicate Marking & Indexing ──
+    Sort --> MarkDup[Picard<br>MarkDuplicates]
+    MarkDup --> Index[samtools index]
+    
+    %% ── Stage 4: QC & Complexity ──
+    Index -.-> Stats[samtools stats]
+    Index -.-> Preseq[Preseq<br>Library Complexity]
+    Index -.-> RSeQC[RSeQC<br>Gene Body & Strand QC]
+
+    %% ── Stage 5: Quantification ──
+    Index --> FeatureCounts[featureCounts<br>Gene Quantification]
+    
+    %% ── Stage 6: Analytics & Gating ──
+    FeatureCounts --> DESeq2Prep[DESeq2 Prep<br>VST, PCA, Correlation]
+    Stats -.-> QCGate[QC Gate<br>Threshold Filter]
+    RSeQC -.-> QCGate
+    
+    %% ── Stage 7: Reporting ──
+    FastP -.-> MultiQC[MultiQC Report]
+    FastQC -.-> MultiQC
+    STAR -.-> MultiQC
+    MarkDup -.-> MultiQC
+    Preseq -.-> MultiQC
+    RSeQC -.-> MultiQC
+    FeatureCounts -.-> MultiQC
+
+    %% ── Styling ──
+    classDef input fill:#f8f9fa,stroke:#6c757d,color:#000;
+    classDef process fill:#e2e3e5,stroke:#383d41,color:#000;
+    classDef analysis fill:#d1ecf1,stroke:#0c5460,color:#000;
+    classDef diffbind fill:#e8daef,stroke:#6c3483,color:#1a1a2e;
+    classDef qc fill:#fff3cd,stroke:#856404,color:#856404;
+    classDef report fill:#d4edda,stroke:#28a745,color:#155724;
+
+    class Raw input;
+    class FastP,STAR,Sort,MarkDup,Index,FeatureCounts process;
+    class DESeq2Prep,QCGate analysis;
+    class FastQC,Stats,Preseq,RSeQC qc;
+    class MultiQC report;
+```
+
+---
+
+## 🚀 Quick Start
+
+The pipeline relies on **Snakemake 8.0+** and uses a wrapper script to bootstrap execution seamlessly.
+
+### 1. Configure the Run
+Edit `config.yaml` to specify your parameters and ensure your metadata is in `data/fastp/samples.tsv`.
+
+### 2. Execute
+Run the pipeline using the wrapper script, which handles environment detection, pre-flight validation, and execution profiles automatically:
+
+```bash
+# Run locally using 8 cores
+scripts/run_pipeline.sh -c 8 -- --profile profiles/local
+
+# Run on an HPC cluster using SLURM
+scripts/run_pipeline.sh -- --profile profiles/slurm
+
+# Run in the Cloud (e.g., Google Cloud Batch)
+scripts/run_pipeline.sh -- --profile profiles/gcp
+```
+
+---
+
+## 📁 Repository Documentation Map
+
+For detailed architectural information, please consult the specific `README.md` files located in each foundational directory:
+
+| Directory | What you will find there |
+|---|---|
+| [`profiles/`](profiles/) | Cloud, SLURM, and local execution configuration profiles |
+| [`scripts/`](scripts/) | Pipeline orchestration and execution wrappers |
+| [`envs/`](envs/) | Grouped, multi-tool Conda environments for manual debugging |
+| [`rules/envs/`](rules/envs/) | Strict, 1-to-1 modular Conda environments for automated rules |
+| [`rules/`](rules/) | Modular `.smk` files and dependency flowcharts |
+
+---
+
+## 🔒 Security & Fail-Safes
+
+| Mechanism | Description |
+|---|---|
+| **Pre-flight Validation** | The `scripts/` wrapper enforces configuration validation *before* execution. |
+| **Strict Isolation** | `rules/envs/` guarantees completely isolated tool executions. |
+| **Defensive Analytics** | Analytics scripts gracefully write placeholder outputs instead of crashing when biological data yields extreme outliers. |
