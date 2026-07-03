@@ -27,9 +27,9 @@ jobs:
         with:
           micromamba-version: 'latest'
 
-      - name: Install Bowtie2 Aligner
+      - name: Install STAR Aligner
         run: |
-          sudo apt-get update && sudo apt-get install -y bowtie2
+          sudo apt-get update && sudo apt-get install -y rna-star
 
       - name: Generate Test Data
         run: |
@@ -77,9 +77,9 @@ jobs:
         with:
           micromamba-version: 'latest'
 
-      - name: Install Bowtie2 Aligner
+      - name: Install STAR Aligner
         run: |
-          sudo apt-get update && sudo apt-get install -y bowtie2
+          sudo apt-get update && sudo apt-get install -y rna-star
 
       - name: Generate Test Data
         run: |
