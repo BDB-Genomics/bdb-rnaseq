@@ -1,0 +1,17 @@
+# Snakemake Test Profile
+# Usage: snakemake --profile profile/test
+# Runs a minimal subset of the pipeline for CI validation
+
+use-conda: true
+jobs: 4
+printshellcmds: true
+show-failed-logs: true
+rerun-incomplete: true
+restart-times: 0
+configfile: "profile/test/config_test.yaml"
+
+
+default-resources:
+  mem_mb: 2000
+  time: 30
+  threads: 2
