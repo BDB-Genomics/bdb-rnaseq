@@ -2,8 +2,7 @@
 # Usage: snakemake --profile profiles/slurm
 
 executor: slurm
-use-conda: false
-use-singularity: true
+use-conda: true
 conda-frontend: mamba
 jobs: 100
 printshellcmds: true

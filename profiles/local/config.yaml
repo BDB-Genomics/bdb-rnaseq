@@ -2,7 +2,6 @@
 # Usage: snakemake --profile profiles/local
 
 use-conda: true
-use-singularity: false
 conda-frontend: mamba
 jobs: 8
 printshellcmds: true
