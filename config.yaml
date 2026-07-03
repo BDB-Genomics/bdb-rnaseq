@@ -7,9 +7,9 @@ global:
   samples: "data/samples.tsv"
   envs:
     main: "envs/main.yaml"
-  index: "path/to/star/index"           # REPLACE with your STAR genome index directory
-  gtf: "path/to/annotation.gtf"        # REPLACE with your GTF annotation file
-  refgene: "path/to/refgene.bed"       # REPLACE with your RSeQC reference gene BED file
+  index: "data/reference/star_index"           # REPLACE with your STAR genome index directory
+  gtf: "data/reference/annotation.gtf"        # REPLACE with your GTF annotation file
+  refgene: "data/reference/refgene.bed"       # REPLACE with your RSeQC reference gene BED file
 
 # --- Tool Specific Configurations ---------------------------------------------
 
