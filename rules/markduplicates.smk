@@ -27,7 +27,7 @@ rule markduplicates:
     shell:
         """
         set -euo pipefail && \
-        picard --java-options {params.java_opts} \
+        _JAVA_OPTIONS="{params.java_opts}" picard \
         MarkDuplicates \
         -I {input.bam} \
         -O {output.bam} \
