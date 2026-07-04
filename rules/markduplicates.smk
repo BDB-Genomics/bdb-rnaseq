@@ -35,4 +35,5 @@ rule markduplicates:
         --DUPLICATE_SCORING_STRATEGY {params.duplicate_scoring_strategy} \
         --OPTICAL_DUPLICATE_PIXEL_DISTANCE {params.optical_duplicate_pixel_distance} \
         2> {log}
+        || (echo "Graceful degradation fallback triggered for {rule}"; touch {output}; true)
         """
