@@ -1,14 +1,15 @@
+from pathlib import Path
 rule deseq2_prep:
     input:
         counts=config['deseq2_prep']['input']['counts'],
         samples=config['deseq2_prep']['input']['samples']
 
     output:
-        normalized_counts=os.path.join(config['deseq2_prep']['output']['dir'], "normalized_counts.txt"),
-        pca=os.path.join(config['deseq2_prep']['output']['dir'], "pca.txt"),
-        sample_correlation=os.path.join(config['deseq2_prep']['output']['dir'], "sample_correlation.txt"),
-        dispersions=os.path.join(config['deseq2_prep']['output']['dir'], "dispersions.txt"),
-        gene_filter=os.path.join(config['deseq2_prep']['output']['dir'], "genes_filtered.txt")
+        normalized_counts=Path(config['deseq2_prep']['output']['dir']) / "normalized_counts.txt",
+        pca=Path(config['deseq2_prep']['output']['dir']) / "pca.txt",
+        sample_correlation=Path(config['deseq2_prep']['output']['dir']) / "sample_correlation.txt",
+        dispersions=Path(config['deseq2_prep']['output']['dir']) / "dispersions.txt",
+        gene_filter=Path(config['deseq2_prep']['output']['dir']) / "genes_filtered.txt"
 
     params:
         min_mean_expr=config['deseq2_prep']['params']['min_mean_expr'],

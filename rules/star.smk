@@ -1,15 +1,16 @@
+from pathlib import Path
 rule star_align:
     input:
         R1 = lambda wildcards: f"{config['fastp']['output']['dir']}/{wildcards.sample}_R1_trimmed.fastq.gz",
         R2 = lambda wildcards: f"{config['fastp']['output']['dir']}/{wildcards.sample}_R2_trimmed.fastq.gz"
 
     output:
-        bam = os.path.join(config['star']['output']['dir'], "{sample}Aligned.out.bam"),
-        log_final = os.path.join(config['star']['output']['dir'], "{sample}Log.final.out")
+        bam = Path(config['star']['output']['dir']) / "{sample}Aligned.out.bam",
+        log_final = Path(config['star']['output']['dir']) / "{sample}Log.final.out"
 
     params:
         index = config['global']['index'],
-        out_prefix = lambda w, output: output.bam.replace("Aligned.out.bam", ""),
+        out_prefix = lambda w, output: output.bam.replace("Aligned.out.bam" / ""),
         overhang = config['star']['params']['sjdbOverhang']
 
     resources:
