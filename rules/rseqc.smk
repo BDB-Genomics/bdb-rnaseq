@@ -97,7 +97,7 @@ rule rseqc_gene_body_coverage:
         txt=Path(config['rseqc']['output']['dir']) / "{sample}.geneBodyCoverage.txt"
 
     params:
-        out_prefix=lambda w, output: output.txt.replace(".geneBodyCoverage.txt" / "")
+        out_prefix=lambda w, output: str(output.txt).replace(".geneBodyCoverage.txt", "")
 
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],

@@ -10,7 +10,7 @@ rule star_align:
 
     params:
         index = config['global']['index'],
-        out_prefix = lambda w, output: output.bam.replace("Aligned.out.bam" / ""),
+        out_prefix = lambda w, output: str(output.bam).replace("Aligned.out.bam", ""),
         overhang = config['star']['params']['sjdbOverhang']
 
     resources:
