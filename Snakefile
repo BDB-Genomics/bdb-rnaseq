@@ -95,9 +95,11 @@ RSEQC_TARGETS = [
     expand(f"{config['rseqc']['output']['dir']}/{{sample}}.geneBodyCoverage.txt", sample=SAMPLES)
 ]
 
-PRESEQ_TARGETS = [
-    expand(f"{config['preseq']['output']['dir']}/{{sample}}.ccurve.txt", sample=SAMPLES)
-]
+PRESEQ_TARGETS = []
+if not config.get("ci_mode", False):
+    PRESEQ_TARGETS = [
+        expand(f"{config['preseq']['output']['dir']}/{{sample}}.ccurve.txt", sample=SAMPLES)
+    ]
 
 QUANTIFICATION_TARGETS = [
     f"{config['featurecounts']['output']['dir']}/counts.txt"

@@ -1,0 +1,31 @@
+name: Snakemake Pipeline Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          miniforge-version: latest
+
+      - name: Install Snakemake
+        run: |
+          conda install -n base -c conda-forge mamba snakemake graphviz
+
+      - name: Generate Synthetic Data
+        run: |
+          python3 rules/scripts/generate_test_data.py
+
+      - name: Run Pipeline (CI Mode)
+        run: |
+          snakemake --use-conda --conda-frontend mamba --profile profiles/test

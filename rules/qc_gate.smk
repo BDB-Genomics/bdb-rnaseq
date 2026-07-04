@@ -32,6 +32,5 @@ rule qc_gate:
             --min-mapping-rate {params.min_mapping_pt} \
             --max-duplicate-rate {params.max_dup_pt} \
             --log {log} \
-            --output {output.pass_file} || \
-        (echo "QC Gating Failed for {wildcards.sample}, generating dummy pass file for graceful downstream degradation"; touch {output.pass_file}; true)
+            --output {output.pass_file}
         """

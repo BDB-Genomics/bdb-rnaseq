@@ -1,3 +1,5 @@
+ci_mode: true
+
 qc_gate:
   params:
     min_total_reads: 0
