@@ -34,5 +34,5 @@ rule multiqc:
             --title "RNA-seq Pipeline QC Report" \
             --comment "Comprehensive quality control metrics for RNA-seq analysis" \
             2> {log}
-        || (echo "Graceful degradation fallback triggered for {rule}"; touch {output}; true)
+        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """

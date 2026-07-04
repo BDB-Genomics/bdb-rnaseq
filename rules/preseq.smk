@@ -26,5 +26,5 @@ rule preseq:
         -o {output.ccurve} \
         {input.bam} \
         2> {log}
-        || (echo "Graceful degradation fallback triggered for {rule}"; touch {output}; true)
+        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """

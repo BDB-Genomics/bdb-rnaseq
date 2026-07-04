@@ -26,7 +26,7 @@ rule rseqc_infer_experiment:
         infer_experiment.py -r {input.refgene} -i {input.bam} \
         > {output.txt} \
         2> {log}
-        || (echo "Graceful degradation fallback triggered for {rule}"; touch {output}; true)
+        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """
 
 
@@ -57,7 +57,7 @@ rule rseqc_read_distribution:
         read_distribution.py -r {input.refgene} -i {input.bam} \
         > {output.txt} \
         2> {log}
-        || (echo "Graceful degradation fallback triggered for {rule}"; touch {output}; true)
+        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """
 
 
@@ -87,7 +87,7 @@ rule rseqc_bam_stat:
         bam_stat.py -i {input.bam} \
         > {output.txt} \
         2> {log}
-        || (echo "Graceful degradation fallback triggered for {rule}"; touch {output}; true)
+        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """
 
 
@@ -120,5 +120,5 @@ rule rseqc_gene_body_coverage:
         set -euo pipefail && \
         geneBody_coverage.py -r {input.refgene} -i {input.bam} -o {params.out_prefix} \
         2> {log}
-        || (echo "Graceful degradation fallback triggered for {rule}"; touch {output}; true)
+        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """
