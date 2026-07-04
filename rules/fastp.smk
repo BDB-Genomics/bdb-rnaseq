@@ -4,10 +4,10 @@ rule fastp_trim :
       R2 = lambda wildcards: FASTQ_R2[wildcards.sample]
     
     output:
-      R1_trimmed = f"{config['fastp']['output']['dir']}/{{sample}}_R1_trimmed.fastq.gz",
-      R2_trimmed = f"{config['fastp']['output']['dir']}/{{sample}}_R2_trimmed.fastq.gz",
-      html = f"{config['fastp']['output']['dir']}/{{sample}}.html",
-      json = f"{config['fastp']['output']['dir']}/{{sample}}.json"
+      R1_trimmed = os.path.join(config['fastp']['output']['dir'], "{sample}_R1_trimmed.fastq.gz"),
+      R2_trimmed = os.path.join(config['fastp']['output']['dir'], "{sample}_R2_trimmed.fastq.gz"),
+      html = os.path.join(config['fastp']['output']['dir'], "{sample}.html"),
+      json = os.path.join(config['fastp']['output']['dir'], "{sample}.json")
   
     params:
       trim_front1 = config["fastp"]["params"]["trim_front1"],

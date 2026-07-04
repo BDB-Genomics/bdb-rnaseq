@@ -4,12 +4,12 @@ rule star_align:
         R2 = lambda wildcards: f"{config['fastp']['output']['dir']}/{wildcards.sample}_R2_trimmed.fastq.gz"
 
     output:
-        bam = f"{config['star']['output']['dir']}/{{sample}}Aligned.out.bam",
-        log_final = f"{config['star']['output']['dir']}/{{sample}}Log.final.out"
+        bam = os.path.join(config['star']['output']['dir'], "{sample}Aligned.out.bam"),
+        log_final = os.path.join(config['star']['output']['dir'], "{sample}Log.final.out")
 
     params:
         index = config['global']['index'],
-        out_prefix = f"{config['star']['output']['dir']}/{{sample}}",
+        out_prefix = lambda w, output: output.bam.replace("Aligned.out.bam", ""),
         overhang = config['star']['params']['sjdbOverhang']
 
     resources:

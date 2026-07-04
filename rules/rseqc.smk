@@ -4,7 +4,7 @@ rule rseqc_infer_experiment:
         refgene=config['global']['refgene']
 
     output:
-        txt=f"{config['rseqc']['output']['dir']}/{{sample}}.infer_experiment.txt"
+        txt=os.path.join(config['rseqc']['output']['dir'], "{sample}.infer_experiment.txt")
 
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],
@@ -34,7 +34,7 @@ rule rseqc_read_distribution:
         refgene=config['global']['refgene']
 
     output:
-        txt=f"{config['rseqc']['output']['dir']}/{{sample}}.read_distribution.txt"
+        txt=os.path.join(config['rseqc']['output']['dir'], "{sample}.read_distribution.txt")
 
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],
@@ -63,7 +63,7 @@ rule rseqc_bam_stat:
         bam=lambda wildcards: f"{config['rseqc']['input']['bam']}/{wildcards.sample}.sorted.dup.bam"
 
     output:
-        txt=f"{config['rseqc']['output']['dir']}/{{sample}}.bam_stat.txt"
+        txt=os.path.join(config['rseqc']['output']['dir'], "{sample}.bam_stat.txt")
 
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],
@@ -93,10 +93,10 @@ rule rseqc_gene_body_coverage:
         refgene=config['global']['refgene']
 
     output:
-        txt=f"{config['rseqc']['output']['dir']}/{{sample}}.geneBodyCoverage.txt"
+        txt=os.path.join(config['rseqc']['output']['dir'], "{sample}.geneBodyCoverage.txt")
 
     params:
-        out_prefix=f"{config['rseqc']['output']['dir']}/{{sample}}"
+        out_prefix=lambda w, output: output.txt.replace(".geneBodyCoverage.txt", "")
 
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],

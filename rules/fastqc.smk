@@ -4,13 +4,13 @@ rule fastqc:
         R2_trimmed=lambda wildcards: f"{config['fastqc']['input']['R2']}/{wildcards.sample}_R2_trimmed.fastq.gz"
     
     output:
-        R1_report = f"{config['fastqc']['output']}/{{sample}}_R1_trimmed_fastqc.html",
-        R1_zip = f"{config['fastqc']['output']}/{{sample}}_R1_trimmed_fastqc.zip",
-        R2_report = f"{config['fastqc']['output']}/{{sample}}_R2_trimmed_fastqc.html",
-        R2_zip = f"{config['fastqc']['output']}/{{sample}}_R2_trimmed_fastqc.zip"
+        R1_report = os.path.join(config['fastqc']['output'], "{sample}_R1_trimmed_fastqc.html"),
+        R1_zip = os.path.join(config['fastqc']['output'], "{sample}_R1_trimmed_fastqc.zip"),
+        R2_report = os.path.join(config['fastqc']['output'], "{sample}_R2_trimmed_fastqc.html"),
+        R2_zip = os.path.join(config['fastqc']['output'], "{sample}_R2_trimmed_fastqc.zip")
     
     params:
-        out_dir=directory(config['fastqc']['output'])
+        out_dir=lambda w, output: os.path.dirname(output.R1_report)
         
     resources:
         mem_mb=config['fastqc']['resources']['mem_mb'], 
