@@ -25,6 +25,5 @@ rule samtools_index:
         -@ {threads} \
         {input.sorted_bam} \
         {output.indexed_bam} \
-        2> {log}
-        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """

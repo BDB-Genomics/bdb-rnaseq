@@ -38,6 +38,5 @@ rule deseq2_prep:
         --output-dir {params.output_dir} \
         --min-mean-expr {params.min_mean_expr} \
         --padj-threshold {params.padj_threshold} \
-        2> {log}
-        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """

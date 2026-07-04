@@ -44,6 +44,5 @@ rule featurecounts:
         -a {input.gtf} \
         -o {output.counts} \
         {input.bams} \
-        2> {log}
-        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """

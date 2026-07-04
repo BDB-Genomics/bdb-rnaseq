@@ -38,6 +38,5 @@ rule star_align:
         --outSAMtype BAM Unsorted \
         --quantMode GeneCounts \
         --outFileNamePrefix {params.out_prefix} \
-        2> {log}
-        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """

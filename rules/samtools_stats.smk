@@ -25,6 +25,5 @@ rule samtools_stats:
         -@ {threads} \
         {input.bam} \
         > {output.stats} \
-        2> {log}
-        || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
         """
