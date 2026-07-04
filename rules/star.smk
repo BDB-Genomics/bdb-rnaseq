@@ -19,7 +19,7 @@ rule star_align:
 
     benchmark: "benchmarks/star/{sample}.txt"
     log: "logs/star/{sample}.log"
-    conda: "rules/envs/star.yaml"
+    conda: "envs/star.yaml"
     container: "https://depot.galaxyproject.org/singularity/star:2.5.4a--0"
     threads: config['star']['threads']
 

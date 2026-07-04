@@ -13,7 +13,7 @@ rule rseqc_infer_experiment:
 
     benchmark: "benchmarks/rseqc/{sample}_infer_experiment.txt"
     log: "logs/rseqc/{sample}_infer_experiment.log"
-    conda: "rules/envs/rseqc.yaml"
+    conda: "envs/rseqc.yaml"
     container: "https://depot.galaxyproject.org/singularity/rseqc:5.0.3--py39h7a9f48d_1"
     threads: config['rseqc']['threads']
 
@@ -43,7 +43,7 @@ rule rseqc_read_distribution:
 
     benchmark: "benchmarks/rseqc/{sample}_read_distribution.txt"
     log: "logs/rseqc/{sample}_read_distribution.log"
-    conda: "rules/envs/rseqc.yaml"
+    conda: "envs/rseqc.yaml"
     container: "https://depot.galaxyproject.org/singularity/rseqc:5.0.3--py39h7a9f48d_1"
     threads: config['rseqc']['threads']
 
@@ -72,7 +72,7 @@ rule rseqc_bam_stat:
 
     benchmark: "benchmarks/rseqc/{sample}_bam_stat.txt"
     log: "logs/rseqc/{sample}_bam_stat.log"
-    conda: "rules/envs/rseqc.yaml"
+    conda: "envs/rseqc.yaml"
     container: "https://depot.galaxyproject.org/singularity/rseqc:5.0.3--py39h7a9f48d_1"
     threads: config['rseqc']['threads']
 
@@ -105,7 +105,7 @@ rule rseqc_gene_body_coverage:
 
     benchmark: "benchmarks/rseqc/{sample}_gene_body_coverage.txt"
     log: "logs/rseqc/{sample}_gene_body_coverage.log"
-    conda: "rules/envs/rseqc.yaml"
+    conda: "envs/rseqc.yaml"
     container: "https://depot.galaxyproject.org/singularity/rseqc:5.0.3--py39h7a9f48d_1"
     threads: config['rseqc']['threads']
 

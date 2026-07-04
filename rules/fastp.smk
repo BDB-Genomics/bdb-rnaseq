@@ -21,7 +21,7 @@ rule fastp_trim :
           
     benchmark: "benchmarks/fastp/{sample}.txt"
     log: "logs/fastp/{sample}.log"
-    conda: "rules/envs/fastp.yaml"
+    conda: "envs/fastp.yaml"
     container: "https://depot.galaxyproject.org/singularity/fastp:0.18.0--hd28b015_0"   
     threads: config["fastp"]["threads"]
     

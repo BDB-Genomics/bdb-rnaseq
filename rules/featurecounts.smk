@@ -25,7 +25,7 @@ rule featurecounts:
 
     benchmark: "benchmarks/featurecounts/featurecounts.txt"
     log: "logs/featurecounts/featurecounts.log"
-    conda: "rules/envs/subread.yaml"
+    conda: "envs/subread.yaml"
     container: "https://depot.galaxyproject.org/singularity/subread:2.0.6--he4a0461_2"
     threads: config['featurecounts']['threads']
 

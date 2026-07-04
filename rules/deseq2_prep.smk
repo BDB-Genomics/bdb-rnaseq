@@ -22,7 +22,7 @@ rule deseq2_prep:
 
     benchmark: "benchmarks/deseq2_prep/deseq2_prep.txt"
     log: "logs/deseq2_prep/deseq2_prep.log"
-    conda: "rules/envs/deseq2.yaml"
+    conda: "envs/deseq2.yaml"
     container: "docker://python:3.10"
     threads: config['deseq2_prep']['threads']
 

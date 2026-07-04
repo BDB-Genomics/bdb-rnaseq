@@ -17,7 +17,7 @@ rule markduplicates:
 
     benchmark: "benchmarks/markduplicates/{sample}.txt"
     log: "logs/markduplicates/{sample}.log"
-    conda: "rules/envs/picard.yaml"
+    conda: "envs/picard.yaml"
     container: "https://depot.galaxyproject.org/singularity/picard:3.0.0--hdfd78af_0"
     threads: config['markduplicates']['threads']
 

@@ -11,7 +11,7 @@ rule preseq:
 
     benchmark: "benchmarks/preseq/{sample}.txt"
     log: "logs/preseq/{sample}.log"
-    conda: "rules/envs/preseq.yaml"
+    conda: "envs/preseq.yaml"
     container: "https://depot.galaxyproject.org/singularity/preseq:3.1.2--h4fda758_1"
     threads: config['preseq']['threads']
 

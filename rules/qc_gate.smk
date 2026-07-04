@@ -18,7 +18,7 @@ rule qc_gate:
     
     log: "logs/qc_gate/{sample}.log"
     benchmark: "benchmarks/qc_gate/{sample}.txt"
-    conda: "rules/envs/python.yaml"
+    conda: "envs/python.yaml"
     container: "docker://python:3.10"
     threads: config['qc_gate']['threads']
     message: """[QC GATE] Checking RNA-seq metrics for Sample: {wildcards.sample}"""

@@ -11,7 +11,7 @@ rule samtools_stats:
                     
     benchmark: "benchmarks/samtools_stats/{sample}.txt"
     log: "logs/samtools_stats/{sample}.log"
-    conda: "rules/envs/samtools.yaml"
+    conda: "envs/samtools.yaml"
     container: "https://depot.galaxyproject.org/singularity/samtools:1.21--h96c455f_1"
     threads: config['samtools_stats']['threads']
 
