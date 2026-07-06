@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Snakemake
         run: |
-          conda install -n base -c conda-forge mamba snakemake graphviz
+          conda install -n base -c conda-forge -c bioconda mamba snakemake graphviz
 
       - name: Generate Synthetic Data
         run: |
