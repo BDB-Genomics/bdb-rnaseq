@@ -12,20 +12,49 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Conda
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          auto-update-conda: true
-          miniforge-version: latest
+          python-version: '3.11'
 
       - name: Install Snakemake
         run: |
-          conda install -n base -c conda-forge -c bioconda mamba snakemake graphviz
+          python -m pip install --upgrade pip
+          pip install "snakemake>=8.0,<9.0" "pyyaml" "pulp>=2.0,<2.8"
+
+      - name: Install Micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          micromamba-version: 'latest'
+
+      - name: Install STAR Aligner
+        run: |
+          sudo apt-get update && sudo apt-get install -y rna-star
 
       - name: Generate Synthetic Data
         run: |
           python3 rules/scripts/generate_test_data.py
 
+      - name: Cache Conda Environments
+        uses: actions/cache@v3
+        with:
+          path: .snakemake/conda
+          key: snakemake-conda-${{ runner.os }}-${{ hashFiles('rules/envs/**/*.yaml') }}
+          restore-keys: |
+            snakemake-conda-${{ runner.os }}-
+
       - name: Run Pipeline (CI Mode)
         run: |
-          snakemake --use-conda --conda-frontend mamba --profile profiles/test
+          snakemake --use-conda --conda-frontend mamba --profile profiles/test \
+            --cores 4 \
+            --latency-wait 60
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            results/
+            logs/
+          retention-days: 7
