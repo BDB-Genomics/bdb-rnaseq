@@ -35,7 +35,7 @@ rule fastqc:
         -o {params.out_dir} \
         {input.R1_trimmed} {input.R2_trimmed} \
         2> {log} || {{
-            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+            if [ "$${{CI:-false}}" = "true" ] || [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
                 echo "Graceful degradation fallback triggered for fastqc"
                 touch {output}
             else

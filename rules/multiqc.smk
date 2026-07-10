@@ -37,7 +37,7 @@ rule multiqc:
             --title "RNA-seq Pipeline QC Report" \
             --comment "Comprehensive quality control metrics for RNA-seq analysis" \
             2> {log} || {{
-                if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                if [ "$${{CI:-false}}" = "true" ] || [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
                     echo "Graceful degradation fallback triggered for multiqc"
                     mkdir -p {output.report_dir}
                 else

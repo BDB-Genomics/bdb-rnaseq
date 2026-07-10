@@ -5,26 +5,28 @@
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 import csv
+import os
 import subprocess
+import tempfile
+import yaml
 from pathlib import Path
 
-# Detect config file from command line arguments dynamically
-import sys
-config_file = "config.yaml"
-for i, arg in enumerate(sys.argv):
-    if arg == "--configfile" and i + 1 < len(sys.argv):
-        config_file = sys.argv[i + 1]
-        break
-    elif arg.startswith("--configfile="):
-        config_file = arg.split("=", 1)[1]
-        break
+# Load config defaults
+configfile: "config.yaml"
 
-configfile: config_file
-
-subprocess.run(
-    ["python3", "rules/scripts/validate_config.py", config_file],
-    check=True,
-)
+# Validate the actual, merged configuration (which includes profile/CLI overrides)
+tmp_config_fd, tmp_config_path = tempfile.mkstemp(dir=".", suffix="_merged_config.yaml")
+try:
+    with os.fdopen(tmp_config_fd, "w") as f:
+        yaml.dump(config, f, default_flow_style=False)
+    
+    subprocess.run(
+        ["python3", "rules/scripts/validate_config.py", tmp_config_path],
+        check=True,
+    )
+finally:
+    if os.path.exists(tmp_config_path):
+        os.remove(tmp_config_path)
 
 SAMPLES_TSV = Path(config["global"]["samples"])
 with SAMPLES_TSV.open(newline="") as handle:

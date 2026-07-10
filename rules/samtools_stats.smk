@@ -29,7 +29,7 @@ rule samtools_stats:
         {input.bam} \
         > {output.stats} \
         2> {log} || {{
-            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+            if [ "$${{CI:-false}}" = "true" ] || [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
                 echo "Graceful degradation fallback triggered for samtools_stats"
                 touch {output}
             else

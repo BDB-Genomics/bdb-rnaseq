@@ -5,9 +5,6 @@ rule samtools_sort:
     output:
         bam_sorted=f"{config['samtools_sort']['output']['sorted_bam']}/{{sample}}.sorted.bam"
     
-    params:
-        ci_mode=config.get('ci_mode', False)
-
     resources:
         mem_mb=config['samtools_sort']['resources']['mem_mb'],
         time=config['samtools_sort']['resources']['time']
@@ -29,12 +26,5 @@ rule samtools_sort:
         -O BAM \
         -o {output.bam_sorted} \
         {input.unsorted_bam} \
-        2> {log} || {{
-            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
-                echo "Graceful degradation fallback triggered for samtools_sort"
-                touch {output}
-            else
-                exit 1
-            fi
-        }}
+        2> {log}
         """

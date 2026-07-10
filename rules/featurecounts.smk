@@ -17,8 +17,7 @@ rule featurecounts:
     params:
         strand=config['featurecounts']['params']['strandedness'],
         feature_type=config['featurecounts']['params']['feature_type'],
-        attribute=config['featurecounts']['params']['attribute'],
-        ci_mode=config.get('ci_mode', False)
+        attribute=config['featurecounts']['params']['attribute']
 
     resources:
         mem_mb=config['featurecounts']['resources']['mem_mb'],
@@ -45,12 +44,5 @@ rule featurecounts:
         -a {input.gtf} \
         -o {output.counts} \
         {input.bams} \
-        2> {log} || {{
-            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
-                echo "Graceful degradation fallback triggered for featurecounts"
-                touch {output}
-            else
-                exit 1
-            fi
-        }}
+        2> {log}
         """

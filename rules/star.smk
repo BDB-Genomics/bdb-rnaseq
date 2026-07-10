@@ -11,8 +11,7 @@ rule star_align:
     params:
         index = config['global']['index'],
         out_prefix = lambda w, output: str(output.bam).replace("Aligned.out.bam", ""),
-        overhang = config['star']['params']['sjdbOverhang'],
-        ci_mode = config.get('ci_mode', False)
+        overhang = config['star']['params']['sjdbOverhang']
 
     resources:
         mem_mb = config['star']['resources']['mem_mb'],
@@ -39,12 +38,5 @@ rule star_align:
         --outSAMtype BAM Unsorted \
         --quantMode GeneCounts \
         --outFileNamePrefix {params.out_prefix} \
-        2> {log} || {{
-            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
-                echo "Graceful degradation fallback triggered for star_align"
-                touch {output}
-            else
-                exit 1
-            fi
-        }}
+        2> {log}
         """

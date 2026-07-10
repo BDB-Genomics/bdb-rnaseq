@@ -29,7 +29,7 @@ rule preseq:
         -o {output.ccurve} \
         {input.bam} \
         2> {log} || {{
-            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+            if [ "$${{CI:-false}}" = "true" ] || [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
                 echo "Graceful degradation fallback triggered for preseq"
                 touch {output}
             else

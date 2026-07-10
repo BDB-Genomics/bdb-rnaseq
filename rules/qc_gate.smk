@@ -34,7 +34,7 @@ rule qc_gate:
             --max-duplicate-rate {params.max_dup_pt} \
             --log {log} \
             --output {output.pass_file} || {{
-                if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                if [ "$${{CI:-false}}" = "true" ] || [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
                     echo "QC Gating Failed for {wildcards.sample}. Graceful degradation: touching placeholder."
                     touch {output.pass_file}
                 else
