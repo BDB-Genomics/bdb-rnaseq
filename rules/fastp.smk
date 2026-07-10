@@ -13,7 +13,8 @@ rule fastp_trim :
     params:
       trim_front1 = config["fastp"]["params"]["trim_front1"],
       trim_front2 = config["fastp"]["params"]["trim_front2"],
-      length_required = config["fastp"]["params"]["length_required"]
+      length_required = config["fastp"]["params"]["length_required"],
+      ci_mode = config.get('ci_mode', False)
       
     resources:
         mem_mb=config['fastp']['resources']['mem_mb'], 
@@ -43,8 +44,15 @@ rule fastp_trim :
       --thread {threads} \
       --html {output.html} \
       --json {output.json} \
-      > {log} 2>&1 || (echo "Graceful degradation fallback triggered"; touch {output}; true)
-     """
+      > {log} 2>&1 || {{
+          if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+              echo "Graceful degradation fallback triggered for fastp"
+              touch {output}
+          else
+              exit 1
+          fi
+      }}
+      """
 #Syntactically and logically correct. 
 
 

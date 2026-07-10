@@ -13,6 +13,9 @@ rule multiqc:
     output:
         report_dir=directory(config['multiqc']['output']['report'])
         
+    params:
+        ci_mode=config.get('ci_mode', False)
+
     resources:
         mem_mb=config['multiqc']['resources']['mem_mb'], 
         time=config['multiqc']['resources']['time']
@@ -33,5 +36,12 @@ rule multiqc:
         multiqc {input} -o {output.report_dir} \
             --title "RNA-seq Pipeline QC Report" \
             --comment "Comprehensive quality control metrics for RNA-seq analysis" \
-            2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+            2> {log} || {{
+                if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                    echo "Graceful degradation fallback triggered for multiqc"
+                    mkdir -p {output.report_dir}
+                else
+                    exit 1
+                fi
+            }}
         """

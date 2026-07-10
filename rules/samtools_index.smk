@@ -5,6 +5,9 @@ rule samtools_index:
     output:
         indexed_bam=f"{config['samtools_index']['output']['index']}/{{sample}}.sorted.dup.bam.bai"
 
+    params:
+        ci_mode=config.get('ci_mode', False)
+
     resources:
         mem_mb=config['samtools_index']['resources']['mem_mb'],
         time=config['samtools_index']['resources']['time']
@@ -25,5 +28,12 @@ rule samtools_index:
         -@ {threads} \
         {input.sorted_bam} \
         {output.indexed_bam} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for samtools_index"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """

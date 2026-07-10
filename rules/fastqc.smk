@@ -11,7 +11,8 @@ rule fastqc:
         R2_zip = Path(config['fastqc']['output']) / "{sample}_R2_trimmed_fastqc.zip"
     
     params:
-        out_dir=lambda w, output: os.path.dirname(output.R1_report)
+        out_dir=lambda w, output: os.path.dirname(output.R1_report),
+        ci_mode=config.get('ci_mode', False)
         
     resources:
         mem_mb=config['fastqc']['resources']['mem_mb'], 
@@ -33,5 +34,12 @@ rule fastqc:
         -t {threads} \
         -o {params.out_dir} \
         {input.R1_trimmed} {input.R2_trimmed} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for fastqc"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """

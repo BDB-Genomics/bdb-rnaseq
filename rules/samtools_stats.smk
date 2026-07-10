@@ -5,6 +5,9 @@ rule samtools_stats:
     output:
         stats=f"{config['samtools_stats']['output']['stats']}/{{sample}}_postFiltering.stats.txt"
     
+    params:
+        ci_mode=config.get('ci_mode', False)
+
     resources:
         mem_mb=config['samtools_stats']['resources']['mem_mb'],
         time=config['samtools_stats']['resources']['time']
@@ -25,5 +28,12 @@ rule samtools_stats:
         -@ {threads} \
         {input.bam} \
         > {output.stats} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for samtools_stats"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """

@@ -14,7 +14,8 @@ rule deseq2_prep:
     params:
         min_mean_expr=config['deseq2_prep']['params']['min_mean_expr'],
         padj_threshold=config['deseq2_prep']['params']['padj_threshold'],
-        output_dir=lambda w, output: os.path.dirname(output.normalized_counts)
+        output_dir=lambda w, output: os.path.dirname(output.normalized_counts),
+        ci_mode=config.get('ci_mode', False)
 
     resources:
         mem_mb=config['deseq2_prep']['resources']['mem_mb'],
@@ -38,5 +39,12 @@ rule deseq2_prep:
         --output-dir {params.output_dir} \
         --min-mean-expr {params.min_mean_expr} \
         --padj-threshold {params.padj_threshold} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for deseq2_prep"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """

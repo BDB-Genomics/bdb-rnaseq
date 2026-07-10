@@ -7,6 +7,9 @@ rule rseqc_infer_experiment:
     output:
         txt=Path(config['rseqc']['output']['dir']) / "{sample}.infer_experiment.txt"
 
+    params:
+        ci_mode=config.get('ci_mode', False)
+
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],
         time=config['rseqc']['resources']['time']
@@ -25,7 +28,14 @@ rule rseqc_infer_experiment:
         set -euo pipefail && \
         infer_experiment.py -r {input.refgene} -i {input.bam} \
         > {output.txt} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for rseqc_infer_experiment"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """
 
 
@@ -36,6 +46,9 @@ rule rseqc_read_distribution:
 
     output:
         txt=Path(config['rseqc']['output']['dir']) / "{sample}.read_distribution.txt"
+
+    params:
+        ci_mode=config.get('ci_mode', False)
 
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],
@@ -55,7 +68,14 @@ rule rseqc_read_distribution:
         set -euo pipefail && \
         read_distribution.py -r {input.refgene} -i {input.bam} \
         > {output.txt} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for rseqc_read_distribution"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """
 
 
@@ -65,6 +85,9 @@ rule rseqc_bam_stat:
 
     output:
         txt=Path(config['rseqc']['output']['dir']) / "{sample}.bam_stat.txt"
+
+    params:
+        ci_mode=config.get('ci_mode', False)
 
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],
@@ -84,7 +107,14 @@ rule rseqc_bam_stat:
         set -euo pipefail && \
         bam_stat.py -i {input.bam} \
         > {output.txt} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for rseqc_bam_stat"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """
 
 
@@ -97,7 +127,8 @@ rule rseqc_gene_body_coverage:
         txt=Path(config['rseqc']['output']['dir']) / "{sample}.geneBodyCoverage.txt"
 
     params:
-        out_prefix=lambda w, output: str(output.txt).replace(".geneBodyCoverage.txt", "")
+        out_prefix=lambda w, output: str(output.txt).replace(".geneBodyCoverage.txt", ""),
+        ci_mode=config.get('ci_mode', False)
 
     resources:
         mem_mb=config['rseqc']['resources']['mem_mb'],
@@ -116,5 +147,12 @@ rule rseqc_gene_body_coverage:
         """
         set -euo pipefail && \
         geneBody_coverage.py -r {input.refgene} -i {input.bam} -o {params.out_prefix} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for rseqc_gene_body_coverage"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """

@@ -9,7 +9,8 @@ rule markduplicates:
     params:
         java_opts=config['markduplicates']['params']['java_opts'],
         duplicate_scoring_strategy=config['markduplicates']['params']['duplicate_scoring_strategy'],
-        optical_duplicate_pixel_distance=config['markduplicates']['params']['optical_duplicate_pixel_distance']
+        optical_duplicate_pixel_distance=config['markduplicates']['params']['optical_duplicate_pixel_distance'],
+        ci_mode=config.get('ci_mode', False)
 
     resources:
         mem_mb=config['markduplicates']['resources']['mem_mb'],
@@ -34,5 +35,12 @@ rule markduplicates:
         -M {output.metrics} \
         --DUPLICATE_SCORING_STRATEGY {params.duplicate_scoring_strategy} \
         --OPTICAL_DUPLICATE_PIXEL_DISTANCE {params.optical_duplicate_pixel_distance} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for markduplicates"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """

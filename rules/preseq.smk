@@ -5,6 +5,9 @@ rule preseq:
     output:
         ccurve=f"{config['preseq']['output']['dir']}/{{sample}}.ccurve.txt"
 
+    params:
+        ci_mode=config.get('ci_mode', False)
+
     resources:
         mem_mb=config['preseq']['resources']['mem_mb'],
         time=config['preseq']['resources']['time']
@@ -25,5 +28,12 @@ rule preseq:
         -B \
         -o {output.ccurve} \
         {input.bam} \
-        2> {log} || (echo "Graceful degradation fallback triggered"; touch {output}; true)
+        2> {log} || {{
+            if [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                echo "Graceful degradation fallback triggered for preseq"
+                touch {output}
+            else
+                exit 1
+            fi
+        }}
         """
