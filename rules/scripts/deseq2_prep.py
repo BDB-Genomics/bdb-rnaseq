@@ -32,7 +32,19 @@ def parse_counts(counts_path: Path) -> pd.DataFrame:
     if first_line.startswith("Gene"):
         df = pd.read_csv(counts_path, sep="\t", index_col=0)
     else:
-        df = pd.read_csv(counts_path, sep="\t", index_col=0, header=0)
+        df = pd.read_csv(counts_path, sep="\t", index_col=0, comment="#")
+
+    # Clean the column names (BAM file paths) to match sample names
+    # e.g., 'results/markduplicates/sample1.sorted.dup.bam' -> 'sample1'
+    new_columns = []
+    for col in df.columns:
+        base = Path(col).name
+        for suffix in [".sorted.dup.bam", ".sorted.bam", ".dup.bam", ".bam"]:
+            if base.endswith(suffix):
+                base = base[: -len(suffix)]
+                break
+        new_columns.append(base)
+    df.columns = new_columns
 
     df.index = df.index.astype(str)
     return df
@@ -60,7 +72,7 @@ def normalize_vst(counts: pd.DataFrame) -> pd.DataFrame:
     log2_counts = np.log2(counts_arr + 1)
     gene_means = log2_counts.mean(axis=1)
     gene_vars = log2_counts.var(axis=1)
-    vst_mat = (log2_counts.T - gene_means.values).T / np.sqrt(gene_vars.values + 0.1)
+    vst_mat = ((log2_counts.T - gene_means) / np.sqrt(gene_vars + 0.1)).T
     vst_df = pd.DataFrame(vst_mat, index=counts.index, columns=counts.columns)
     return vst_df
 
