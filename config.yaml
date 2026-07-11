@@ -128,6 +128,11 @@ featurecounts:
     mem_mb: 8000
     time: "01:00:00"
 
+normalize:
+  output:
+    tpm: "results/featurecounts/tpm.txt"
+    fpkm: "results/featurecounts/fpkm.txt"
+
 # Downstream Analysis
 deseq2_prep:
   input:

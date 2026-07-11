@@ -60,6 +60,7 @@ include: "rules/preseq.smk"
 
 # Quantification
 include: "rules/featurecounts.smk"
+include: "rules/normalize.smk"
 
 # Downstream Analysis
 include: "rules/deseq2_prep.smk"
@@ -105,7 +106,9 @@ if not config.get("ci_mode", False):
     ]
 
 QUANTIFICATION_TARGETS = [
-    f"{config['featurecounts']['output']['dir']}/counts.txt"
+    f"{config['featurecounts']['output']['dir']}/counts.txt",
+    config['normalize']['output']['tpm'],
+    config['normalize']['output']['fpkm']
 ]
 
 DESEQ2_TARGETS = [
