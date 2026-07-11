@@ -11,7 +11,8 @@ rule star_align:
     params:
         index = config['global']['index'],
         out_prefix = lambda w, output: str(output.bam).replace("Aligned.out.bam", ""),
-        overhang = config['star']['params']['sjdbOverhang']
+        overhang = config['star']['params']['sjdbOverhang'],
+        reads = lambda w, input: f"{input.R1}" if is_single_end(w.sample) else f"{input.R1} {input.R2}"
 
     resources:
         mem_mb = config['star']['resources']['mem_mb'],
@@ -32,7 +33,7 @@ rule star_align:
         STAR \
         --runThreadN {threads} \
         --genomeDir {params.index} \
-        --readFilesIn {input.R1} {input.R2} \
+        --readFilesIn {params.reads} \
         --readFilesCommand zcat \
         --sjdbOverhang {params.overhang} \
         --outSAMtype BAM Unsorted \

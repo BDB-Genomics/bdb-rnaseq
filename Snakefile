@@ -41,6 +41,7 @@ if not SAMPLES:
 
 
 # --- Includes ------------------------------------------------------------------
+include: "rules/utils.smk"
 include: "rules/fastp.smk"
 include: "rules/fastqc.smk"
 

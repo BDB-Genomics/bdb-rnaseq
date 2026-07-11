@@ -12,7 +12,8 @@ rule fastqc:
     
     params:
         out_dir=lambda w, output: os.path.dirname(output.R1_report),
-        ci_mode=config.get('ci_mode', False)
+        ci_mode=config.get('ci_mode', False),
+        is_pe=lambda wildcards: not is_single_end(wildcards.sample)
         
     resources:
         mem_mb=config['fastqc']['resources']['mem_mb'], 
@@ -29,17 +30,33 @@ rule fastqc:
     
     shell:
         """
-        set -euo pipefail && \
-        fastqc \
-        -t {threads} \
-        -o {params.out_dir} \
-        {input.R1_trimmed} {input.R2_trimmed} \
-        2> {log} || {{
-            if [ "$${{CI:-false}}" = "true" ] || [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
-                echo "Graceful degradation fallback triggered for fastqc"
-                touch {output}
-            else
-                exit 1
-            fi
-        }}
+        set -euo pipefail
+        if [ "{params.is_pe}" = "True" ]; then
+            fastqc \
+            -t {threads} \
+            -o {params.out_dir} \
+            {input.R1_trimmed} {input.R2_trimmed} \
+            2> {log} || {{
+                if [ "$${{CI:-false}}" = "true" ] || [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                    echo "Graceful degradation fallback triggered for fastqc"
+                    touch {output}
+                else
+                    exit 1
+                fi
+            }}
+        else
+            fastqc \
+            -t {threads} \
+            -o {params.out_dir} \
+            {input.R1_trimmed} \
+            2> {log} || {{
+                if [ "$${{CI:-false}}" = "true" ] || [ "{params.ci_mode}" = "False" ] || [ "{params.ci_mode}" = "false" ]; then
+                    echo "Graceful degradation fallback triggered for fastqc"
+                    touch {output.R1_report} {output.R1_zip}
+                else
+                    exit 1
+                fi
+            }}
+            touch {output.R2_report} {output.R2_zip}
+        fi
         """

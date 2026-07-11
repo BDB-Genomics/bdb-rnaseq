@@ -350,28 +350,31 @@ def validate_samples_sheet(
                     )
                 seen_condition_replicates.add(pair)
 
-            if not r1 or not r2:
+            if not r1:
                 errors.append(
-                    f"Missing FASTQ path(s) for sample '{sample}' at row {row_number}."
+                    f"Missing FASTQ R1 path for sample '{sample}' at row {row_number}."
                 )
                 continue
-            if r1 == r2:
-                errors.append(
-                    f"FASTQ R1 and R2 are identical for sample '{sample}' at row {row_number}."
-                )
 
             fastq_bases = [samples_path.parent, config_path.parent, root, Path.cwd()]
             resolved_r1 = resolve_existing_path(r1, fastq_bases, root)
-            resolved_r2 = resolve_existing_path(r2, fastq_bases, root)
 
             if resolved_r1 is None:
                 errors.append(
                     f"FASTQ R1 not found for sample '{sample}' at row {row_number}: {r1}"
                 )
-            if resolved_r2 is None:
-                errors.append(
-                    f"FASTQ R2 not found for sample '{sample}' at row {row_number}: {r2}"
-                )
+
+            resolved_r2 = None
+            if r2:
+                if r1 == r2:
+                    errors.append(
+                        f"FASTQ R1 and R2 are identical for sample '{sample}' at row {row_number}."
+                    )
+                resolved_r2 = resolve_existing_path(r2, fastq_bases, root)
+                if resolved_r2 is None:
+                    errors.append(
+                        f"FASTQ R2 not found for sample '{sample}' at row {row_number}: {r2}"
+                    )
 
             control = row.get("control", "NONE")
             if not control:

@@ -17,7 +17,8 @@ rule featurecounts:
     params:
         strand=config['featurecounts']['params']['strandedness'],
         feature_type=config['featurecounts']['params']['feature_type'],
-        attribute=config['featurecounts']['params']['attribute']
+        attribute=config['featurecounts']['params']['attribute'],
+        pe_flag=lambda w: "" if any(is_single_end(s) for s in SAMPLES) else "-p --countReadPairs"
 
     resources:
         mem_mb=config['featurecounts']['resources']['mem_mb'],
@@ -37,7 +38,7 @@ rule featurecounts:
         set -euo pipefail && \
         featureCounts \
         -T {threads} \
-        -p --countReadPairs \
+        {params.pe_flag} \
         --ignoreDup \
         -s {params.strand} \
         -t {params.feature_type} \
