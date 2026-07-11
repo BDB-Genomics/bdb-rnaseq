@@ -8,14 +8,23 @@ rule featurecounts:
             f"{config['samtools_index']['output']['index']}/{{sample}}.sorted.dup.bam.bai",
             sample=SAMPLES
         ),
-        gtf=config['global']['gtf']
+        gtf=config['global']['gtf'],
+        rseqc_reports=expand(
+            f"{config['rseqc']['output']['dir']}/{{sample}}.infer_experiment.txt",
+            sample=SAMPLES
+        )
 
     output:
         counts=f"{config['featurecounts']['output']['dir']}/counts.txt",
         summary=f"{config['featurecounts']['output']['dir']}/counts.txt.summary"
 
     params:
-        strand=config['featurecounts']['params']['strandedness'],
+        strand=lambda wildcards, input: get_consensus_strandedness(
+            input.rseqc_reports,
+            threshold=config['featurecounts']['params'].get('strandedness_threshold', 0.8),
+            ci_mode=config.get('ci_mode', False),
+            fallback=config['featurecounts']['params'].get('strandedness_fallback', 2)
+        ),
         feature_type=config['featurecounts']['params']['feature_type'],
         attribute=config['featurecounts']['params']['attribute'],
         pe_flag=lambda w: "" if any(is_single_end(s) for s in SAMPLES) else "-p --countReadPairs"

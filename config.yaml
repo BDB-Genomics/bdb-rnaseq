@@ -131,6 +131,8 @@ featurecounts:
     dir: "results/featurecounts"
   params:
     strandedness: 2                       # 0=unstranded, 1=stranded, 2=reversely stranded (typical for Illumina dUTP)
+    strandedness_threshold: 0.8           # RSeQC infer_experiment minimum confidence threshold
+    strandedness_fallback: 2              # Fallback if detection fails or in CI mode
     feature_type: "exon"                  # GTF feature type to count
     attribute: "gene_id"                  # GTF attribute for grouping
   threads: 4
