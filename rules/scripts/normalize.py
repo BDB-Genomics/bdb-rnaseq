@@ -8,16 +8,27 @@ import sys
 from pathlib import Path
 import pandas as pd
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Calculate TPM and FPKM matrices.")
-    parser.add_argument("--counts", required=True, type=Path, help="Path to featureCounts output counts.txt")
-    parser.add_argument("--tpm", required=True, type=Path, help="Output path for TPM matrix (TSV)")
-    parser.add_argument("--fpkm", required=True, type=Path, help="Output path for FPKM matrix (TSV)")
+    parser.add_argument(
+        "--counts",
+        required=True,
+        type=Path,
+        help="Path to featureCounts output counts.txt",
+    )
+    parser.add_argument(
+        "--tpm", required=True, type=Path, help="Output path for TPM matrix (TSV)"
+    )
+    parser.add_argument(
+        "--fpkm", required=True, type=Path, help="Output path for FPKM matrix (TSV)"
+    )
     return parser.parse_args()
+
 
 def main():
     args = parse_args()
-    
+
     # Read featureCounts table
     with args.counts.open("r", encoding="utf-8") as handle:
         first_line = handle.readline()
@@ -78,6 +89,7 @@ def main():
     tpm.to_csv(args.tpm, sep="\t")
     fpkm.to_csv(args.fpkm, sep="\t")
     print(f"Successfully wrote TPM to {args.tpm} and FPKM to {args.fpkm}")
+
 
 if __name__ == "__main__":
     main()

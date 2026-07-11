@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def is_single_end(sample):
     r2 = FASTQ_R2.get(sample)
     if not r2:
@@ -11,7 +12,7 @@ def is_single_end(sample):
 
 def get_consensus_strandedness(report_paths, threshold=0.8, ci_mode=False, fallback=2):
     """
-    Parses RSeQC infer_experiment output files and returns a single consensus 
+    Parses RSeQC infer_experiment output files and returns a single consensus
     strandedness flag (0 = unstranded, 1 = forward, 2 = reverse) for featureCounts.
     Raises ValueError if samples have conflicting strandedness.
     """
@@ -54,11 +55,12 @@ def get_consensus_strandedness(report_paths, threshold=0.8, ci_mode=False, fallb
     consensus = results[0]
     if any(r != consensus for r in results):
         # Format a helpful message for debugging
-        sample_details = ", ".join(f"{Path(report_paths[i]).stem}: {results[i]}" for i in range(len(results)))
+        sample_details = ", ".join(
+            f"{Path(report_paths[i]).stem}: {results[i]}" for i in range(len(results))
+        )
         raise ValueError(
             f"Mismatched strandedness detected across samples! Detailed layout: {sample_details}. "
             "Please ensure all samples in a single batch belong to the same sequencing library prep."
         )
 
     return consensus
-

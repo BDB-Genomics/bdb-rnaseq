@@ -156,9 +156,12 @@ def main() -> None:
 
     if parse_failed:
         import os
+
         if os.getenv("CI") == "true":
             qc_data["overall"] = "PASSED"
-            print(f"{Colors.WARNING}[CI MODE] Stats parsing failed (empty/placeholder stats file), but allowing pipeline to continue.{Colors.ENDC}")
+            print(
+                f"{Colors.WARNING}[CI MODE] Stats parsing failed (empty/placeholder stats file), but allowing pipeline to continue.{Colors.ENDC}"
+            )
         else:
             qc_data["overall"] = "FAILED"
 
