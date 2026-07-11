@@ -1,3 +1,5 @@
+from pathlib import Path
+
 def is_single_end(sample):
     r2 = FASTQ_R2.get(sample)
     if not r2:
