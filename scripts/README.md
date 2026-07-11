@@ -1,56 +1,60 @@
 # Pipeline Execution Scripts
 
-This directory contains the root-level Bash scripts responsible for bootstrapping, validating, and executing the pipeline.
+Bash wrappers that bootstrap, validate, and launch the pipeline.
 
 ---
 
-## 🏗️ Execution Architecture
+## Execution Flow
 
 ```mermaid
 graph TD
-    A([User runs run_pipeline.sh]) --> B{Locate Executables}
-    B -- Not Found --> C[Activate snakemake_runner Conda Env]
-    B -- Found in PATH --> D
-    C --> D[Locate config.yaml & Snakefile]
+    A([User runs run_pipeline.sh]) --> B{Snakemake in PATH?}
+    B -- No --> C[Activate Conda env from envs/main.yaml]
+    B -- Yes --> D
+    C --> D[Find config.yaml & Snakefile]
     
     D --> E((validate_config.py))
-    E -- Error --> F[Halt Execution & Print Hints]
-    E -- Success --> G[Invoke Snakemake]
+    E -- Error --> F[Print error & halt]
+    E -- Success --> G[Launch Snakemake]
     
-    G --> H{Profile Passed?}
-    H -- Yes --> I[Apply SLURM/Cloud/Local Settings]
-    H -- No --> J[Run with CLI args]
+    G --> H{Profile passed?}
+    H -- Yes --> I[Apply profile settings]
+    H -- No --> J[Use CLI args only]
     
-    I --> K[Pipeline Executing]
+    I --> K[Pipeline running]
     J --> K
 ```
 
 ---
 
-## 📁 Script Reference
+## Scripts
 
-| Script | Purpose |
+| Script | What it does |
 |---|---|
-| `run_pipeline.sh` | The primary entrypoint for the pipeline. Abstracts away environment activation and config validation. |
-| `clean_result_files.sh` | *(Optional)* Recursively cleans up `results/`, `logs/`, and `benchmarks/` to force a complete re-run. |
-| `directory_structure.sh` | *(Optional)* Bootstraps the output directory tree (mostly redundant as Snakemake auto-creates dirs). |
+| `run_pipeline.sh` | Main entry point. Handles environment activation, config validation, and Snakemake launch. |
+| `clean_result_files.sh` | Deletes `results/`, `logs/`, and `benchmarks/` to force a clean re-run. |
+| `directory_structure.sh` | Creates the output directory tree. Mostly redundant since Snakemake auto-creates directories. |
 
 ---
 
-## ⚙️ `run_pipeline.sh` Options
+## `run_pipeline.sh` Options
 
-By default, executing `scripts/run_pipeline.sh` uses 4 cores and `config.yaml`. 
-
-You can modify its behavior with the following flags:
-
-| Flag | Description | Example |
+| Flag | What it does | Example |
 |---|---|---|
-| `-c, --cores` | Set total CPU cores | `-c 16` |
-| `-f, --config` | Provide a custom config path | `-f configs/test.yaml` |
-| `-n, --dry-run` | Build the DAG without running jobs | `-n` |
-| `--` | Pass arbitrary arguments to Snakemake | `-- --profile profiles/slurm` |
+| `-c, --cores` | Set CPU cores | `-c 16` |
+| `-f, --config` | Custom config path | `-f configs/test.yaml` |
+| `-n, --dry-run` | Build DAG without running jobs | `-n` |
+| `--` | Pass extra args to Snakemake | `-- --profile profiles/slurm` |
 
-**Example of Cloud Execution:**
+### Examples
+
 ```bash
+# Local run with 8 cores
+scripts/run_pipeline.sh -c 8 -- --profile profiles/local
+
+# Cloud run on GCP with 100 jobs
 scripts/run_pipeline.sh -c 100 -- --profile profiles/gcp
+
+# Dry run (no jobs executed)
+scripts/run_pipeline.sh -n
 ```

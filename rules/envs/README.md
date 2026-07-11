@@ -1,55 +1,66 @@
 # Rule-Level Environments (Modular)
 
-This directory contains strict **1-to-1 Modular Conda Environments**. Unlike the grouped environments in the root `envs/` directory, these YAML files are strictly mapped to single tools.
+This directory contains strict **one-tool-per-file** Conda environments. Each YAML maps to exactly one `.smk` rule file.
 
 ---
 
-## 🏗️ Environment Architecture (Modular vs. Grouped)
+## How It Works
 
 ```mermaid
 graph TD
-    subgraph rules/envs/ [This Directory : Modular Environments]
-        A[fastp.yaml] --> B((fastp v0.23.2))
-        C[bowtie2.yaml] --> D((bowtie2 v2.4.5))
-        E[macs2.yaml] --> F((macs2 v2.2.7.1))
+    subgraph rules/envs/ [This Directory]
+        A[fastp.yaml] --> B((fastp))
+        C[star.yaml] --> D((STAR))
+        E[subread.yaml] --> F((featureCounts))
     end
     
     subgraph rules/ [Snakemake Rules]
         G[fastp.smk] -.->|conda: envs/fastp.yaml| A
-        H[bowtie2.smk] -.->|conda: envs/bowtie2.yaml| C
-        I[macs2.smk] -.->|conda: envs/macs2.yaml| E
+        H[star.smk] -.->|conda: envs/star.yaml| C
+        I[featurecounts.smk] -.->|conda: envs/subread.yaml| E
     end
     
-    J((Snakemake Orchestrator)) --> G
+    J((Snakemake)) --> G
     J --> H
     J --> I
 ```
 
+Each `.smk` rule declares `conda: "envs/<tool>.yaml"`. Snakemake creates an isolated environment for that rule at runtime.
+
 ---
 
-## 🔒 Design Philosophy
+## File Reference
 
-We enforce strict isolation for Snakemake execution. 
+| YAML File | Tool | Used by |
+|---|---|---|
+| `fastp.yaml` | fastp | `rules/fastp.smk` |
+| `fastqc.yaml` | FastQC | `rules/fastqc.smk` |
+| `star.yaml` | STAR | `rules/star.smk` |
+| `samtools.yaml` | samtools | `rules/samtools_sort.smk`, `samtools_index.smk`, `samtools_stats.smk` |
+| `picard.yaml` | Picard | `rules/markduplicates.smk` |
+| `subread.yaml` | Subread (featureCounts) | `rules/featurecounts.smk` |
+| `rseqc.yaml` | RSeQC | `rules/rseqc.smk` |
+| `preseq.yaml` | Preseq | `rules/preseq.smk` |
+| `multiqc.yaml` | MultiQC | `rules/multiqc.smk` |
+| `deseq2.yaml` | DESeq2 (R) | R differential expression scripts |
+| `python.yaml` | pandas, numpy | `rules/scripts/` Python analytics |
 
-1. **Isolation**: Every `.smk` rule requests exactly what it needs. If `bowtie2` updates, it will not break the environment for `fastp`.
-2. **Reproducibility**: Every tool version is strictly pinned (e.g., `macs2=2.2.7.1`).
-3. **Channel Priority**: All environments strictly enforce `conda-forge`, `bioconda`, and `defaults` in that precise order to prevent dependency conflicts.
+---
+
+## Design Rules
+
+1. **One tool per file.** If `STAR` updates, it does not break `fastp`.
+2. **Pin every version.** Example: `star=2.7.11b`, not just `star`.
+3. **Channel order matters.** Always: `conda-forge` → `bioconda` → `defaults`.
 
 > [!WARNING]
-> Do not add multiple unrelated bioinformatics tools to a single YAML file in this directory. If a rule requires two disjoint tools, split the rule into two rules, or ensure the tools natively co-exist without dependency clashes in the same channel space.
+> Never put two unrelated bioinformatics tools in the same YAML file. If a rule needs two tools, split it into two rules.
 
 ---
 
-## 📁 File Reference
+## `envs/` vs `rules/envs/`
 
-Each file in this directory corresponds to a `.smk` rule in the parent `rules/` directory.
-
-| YAML File | Primary Package | Downstream Consumer |
-|---|---|---|
-| `fastp.yaml` | `fastp` | `rules/fastp.smk` |
-| `bowtie2.yaml` | `bowtie2` | `rules/bowtie2.smk` |
-| `samtools.yaml` | `samtools` | `rules/samtools_sort.smk`, etc. |
-| `picard.yaml` | `picard` | `rules/markduplicates.smk` |
-| `macs2.yaml` | `macs2` | `rules/macs2.smk` |
-| `python.yaml` | `pandas`, `numpy` | `scripts/` (Analytics hooks) |
-| `deseq2.yaml` | `bioconductor-deseq2` | R Differential scripts |
+| Directory | Purpose |
+|---|---|
+| **`rules/envs/`** (this directory) | Used by Snakemake rules during pipeline execution. Strict, isolated, reproducible. |
+| **`envs/`** (root) | Used by humans for interactive debugging in the terminal. Broader, less strict. |
