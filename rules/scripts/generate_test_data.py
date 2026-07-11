@@ -16,7 +16,7 @@ import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
-from typing import Any, IO
+from typing import Any
 
 # Genome layout
 GENOME = {

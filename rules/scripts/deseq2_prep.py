@@ -16,10 +16,8 @@ Or run directly:
 """
 
 import argparse
-import csv
 import sys
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -145,7 +143,7 @@ def main() -> None:
     common_samples = [s for s in samples_meta["sample"] if s in counts.columns]
     if not common_samples:
         sys.stderr.write(
-            f"[DESEQ2_PREP ERROR] No sample names match between counts and sample sheet\n"
+            "[DESEQ2_PREP ERROR] No sample names match between counts and sample sheet\n"
         )
         sys.exit(1)
 
@@ -157,16 +155,16 @@ def main() -> None:
     )
     counts_filt, filtered_genes = filter_low_expr_counts(counts, args.min_mean_expr)
 
-    sys.stderr.write(f"[DESEQ2_PREP] Normalizing counts (VST-like)\n")
+    sys.stderr.write("[DESEQ2_PREP] Normalizing counts (VST-like)\n")
     normalized = normalize_vst(counts_filt)
 
-    sys.stderr.write(f"[DESEQ2_PREP] Computing PCA\n")
+    sys.stderr.write("[DESEQ2_PREP] Computing PCA\n")
     pca_df = compute_pca(normalized)
 
-    sys.stderr.write(f"[DESEQ2_PREP] Computing sample correlation\n")
+    sys.stderr.write("[DESEQ2_PREP] Computing sample correlation\n")
     corr_df = compute_correlation(normalized)
 
-    sys.stderr.write(f"[DESEQ2_PREP] Writing outputs\n")
+    sys.stderr.write("[DESEQ2_PREP] Writing outputs\n")
 
     normalized.to_csv(output_dir / "normalized_counts.txt", sep="\t", index=True)
     pca_df.to_csv(output_dir / "pca.txt", sep="\t", index=True)
