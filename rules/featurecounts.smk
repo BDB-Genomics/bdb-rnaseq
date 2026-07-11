@@ -38,6 +38,7 @@ rule featurecounts:
         featureCounts \
         -T {threads} \
         -p --countReadPairs \
+        --ignoreDup \
         -s {params.strand} \
         -t {params.feature_type} \
         -g {params.attribute} \
