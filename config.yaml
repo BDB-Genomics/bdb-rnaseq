@@ -13,6 +13,16 @@ global:
   gtf: "data/reference/annotation.gtf"        # REPLACE with your GTF annotation file
   refgene: "data/reference/refgene.bed"       # REPLACE with your RSeQC reference gene BED file
 
+resources_dynamic:
+  memory:
+    base_mb: 2000
+    multiplier: 2.0
+    max_mb: 64000
+  time:
+    base_minutes: 30
+    multiplier: 0.1
+    max_minutes: 1440
+
 # --- Tool Specific Configurations ---------------------------------------------
 
 # Preprocessing

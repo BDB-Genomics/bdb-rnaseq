@@ -21,8 +21,8 @@ rule featurecounts:
         pe_flag=lambda w: "" if any(is_single_end(s) for s in SAMPLES) else "-p --countReadPairs"
 
     resources:
-        mem_mb=config['featurecounts']['resources']['mem_mb'],
-        time=config['featurecounts']['resources']['time']
+        mem_mb = lambda wildcards, input, attempt: allocate_memory(wildcards, input, attempt, base_mb=config['featurecounts']['resources']['mem_mb']),
+        time = lambda wildcards, input, attempt: allocate_time(wildcards, input, attempt)
 
     benchmark: "benchmarks/featurecounts/featurecounts.txt"
     log: "logs/featurecounts/featurecounts.log"

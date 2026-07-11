@@ -12,8 +12,8 @@ rule markduplicates:
         optical_duplicate_pixel_distance=config['markduplicates']['params']['optical_duplicate_pixel_distance']
 
     resources:
-        mem_mb=config['markduplicates']['resources']['mem_mb'],
-        time=config['markduplicates']['resources']['time']
+        mem_mb = lambda wildcards, input, attempt: allocate_memory(wildcards, input, attempt, base_mb=config['markduplicates']['resources']['mem_mb']),
+        time = lambda wildcards, input, attempt: allocate_time(wildcards, input, attempt)
 
     benchmark: "benchmarks/markduplicates/{sample}.txt"
     log: "logs/markduplicates/{sample}.log"

@@ -15,8 +15,8 @@ rule star_align:
         reads = lambda w, input: f"{input.R1}" if is_single_end(w.sample) else f"{input.R1} {input.R2}"
 
     resources:
-        mem_mb = config['star']['resources']['mem_mb'],
-        time = config['star']['resources']['time']
+        mem_mb = lambda wildcards, input, attempt: allocate_memory(wildcards, input, attempt, base_mb=config['star']['resources']['mem_mb'], multiplier=3.0),
+        time = lambda wildcards, input, attempt: allocate_time(wildcards, input, attempt)
 
     benchmark: "benchmarks/star/{sample}.txt"
     log: "logs/star/{sample}.log"

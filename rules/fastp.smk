@@ -17,8 +17,8 @@ rule fastp_trim :
       is_pe = lambda wildcards: not is_single_end(wildcards.sample)
       
     resources:
-        mem_mb=config['fastp']['resources']['mem_mb'], 
-        time=config['fastp']['resources']['time']
+        mem_mb = lambda wildcards, input, attempt: allocate_memory(wildcards, input, attempt, base_mb=config['fastp']['resources']['mem_mb']), 
+        time = lambda wildcards, input, attempt: allocate_time(wildcards, input, attempt)
           
     benchmark: "benchmarks/fastp/{sample}.txt"
     log: "logs/fastp/{sample}.log"
