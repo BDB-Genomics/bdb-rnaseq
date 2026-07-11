@@ -18,7 +18,7 @@ resources_dynamic:
     base_mb: 2000
     multiplier: 2.0
     max_mb: 64000
-  time:
+  time_alloc:
     base_minutes: 30
     multiplier: 0.1
     max_minutes: 1440

@@ -53,9 +53,9 @@ def allocate_time(wildcards, input, attempt, **kwargs):
     Time scales by 1.5x with attempt.
     """
     # Pull parameters from config or kwargs, with defaults
-    base_minutes = kwargs.get('base_minutes', config.get('resources_dynamic', {}).get('time', {}).get('base_minutes', 30))
-    multiplier = kwargs.get('multiplier', config.get('resources_dynamic', {}).get('time', {}).get('multiplier', 0.1))
-    max_minutes = kwargs.get('max_minutes', config.get('resources_dynamic', {}).get('time', {}).get('max_minutes', 1440))
+    base_minutes = kwargs.get('base_minutes', config.get('resources_dynamic', {}).get('time_alloc', {}).get('base_minutes', 30))
+    multiplier = kwargs.get('multiplier', config.get('resources_dynamic', {}).get('time_alloc', {}).get('multiplier', 0.1))
+    max_minutes = kwargs.get('max_minutes', config.get('resources_dynamic', {}).get('time_alloc', {}).get('max_minutes', 1440))
     
     size_mb = get_input_size_mb(input)
     scale = 1.5 ** (attempt - 1)
