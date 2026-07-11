@@ -106,3 +106,15 @@ For detailed architectural information, please consult the specific `README.md` 
 | **Pre-flight Validation** | The `scripts/` wrapper enforces configuration validation *before* execution. |
 | **Strict Isolation** | `rules/envs/` guarantees completely isolated tool executions. |
 | **Defensive Analytics** | Analytics scripts gracefully write placeholder outputs instead of crashing when biological data yields extreme outliers. |
+
+---
+
+## 🧬 Strandedness Auto-Detection
+
+The pipeline automatically infers library strandedness by parsing the output of RSeQC `infer_experiment.py`.
+
+You can tune the classification parameters in `config.yaml` under `featurecounts` ➔ `params`:
+*   `strandedness_threshold`: The fraction threshold above which a library is confidently classified as stranded (default: `0.8`).
+*   `strandedness_fallback`: The default fallback value (`0` = unstranded, `1` = forward, `2` = reverse) used in CI mode or if reports are missing/empty (default: `2`).
+
+These thresholds are empirical pipeline conventions used to prevent silent counting degradation, rather than fixed biological constants. Adjust them based on your dataset's specific noise levels.
