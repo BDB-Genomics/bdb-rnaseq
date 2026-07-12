@@ -405,6 +405,44 @@ def validate_samples_sheet(
     return records
 
 
+def validate_cohort_layout_consistency(
+    records: list[dict[str, Any]], errors: list[str]
+) -> None:
+    """
+    Enforces a uniform sequencing layout (all SE or all PE) across the cohort.
+    Builds a dict of {sample_name: set_of_non_empty_fastq_paths} and checks
+    whether all samples have the same number of FASTQ files (1 = SE, 2 = PE).
+    Raises a validation error if a mix is detected.
+    """
+    if not records:
+        return
+
+    # Build: {sample_name -> set of non-empty FASTQ paths}
+    sample_files: dict[str, set[str]] = {
+        record["sample"]: {
+            p for p in (str(record["fastq_r1"]), str(record["fastq_r2"] or ""))
+            if p and p != "None"
+        }
+        for record in records
+    }
+
+    # Collect the unique set sizes across all samples
+    file_counts: set[int] = {len(files) for files in sample_files.values()}
+
+    if len(file_counts) > 1:
+        se_samples = sorted(
+            name for name, files in sample_files.items() if len(files) == 1
+        )
+        pe_samples = sorted(
+            name for name, files in sample_files.items() if len(files) == 2
+        )
+        errors.append(
+            "Mixed sequencing layout detected: all samples must be either single-end "
+            "or paired-end in one cohort. "
+            f"Single-end: {se_samples}. Paired-end: {pe_samples}."
+        )
+
+
 def validate_fastp_input_mapping(
     config: dict[str, Any],
     sample_records: list[dict[str, Any]],
@@ -602,6 +640,7 @@ def main() -> None:
         validate_required_config_paths(config, required_paths, errors)
         validate_scalar_config_values(config, errors)
         sample_records = validate_samples_sheet(config, config_path, root, errors)
+        validate_cohort_layout_consistency(sample_records, errors)
         validate_fastp_input_mapping(config, sample_records, config_path, root, errors)
         validate_path_checks(config, config_path, root, errors)
         validate_samples_usage(root, config, errors)
