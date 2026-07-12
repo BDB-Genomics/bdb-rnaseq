@@ -135,6 +135,10 @@ jobs:
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@v2
 
+      - name: Install STAR Aligner
+        run: |
+          sudo apt-get update && sudo apt-get install -y rna-star
+
       - name: Generate Synthetic Data
         run: |
           python3 rules/scripts/generate_test_data.py --mode pe
