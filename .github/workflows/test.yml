@@ -26,6 +26,11 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           micromamba-version: 'latest'
+          condarc: |
+            channels:
+              - conda-forge
+              - bioconda
+            channel_priority: strict
 
       - name: Install STAR Aligner
         run: |
@@ -78,6 +83,11 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           micromamba-version: 'latest'
+          condarc: |
+            channels:
+              - conda-forge
+              - bioconda
+            channel_priority: strict
 
       - name: Install STAR Aligner
         run: |
