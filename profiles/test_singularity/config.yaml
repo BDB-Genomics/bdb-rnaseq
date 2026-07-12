@@ -1,0 +1,16 @@
+# Snakemake Test Profile for Singularity
+# Usage: snakemake --profile profiles/test_singularity
+# Runs a minimal subset of the pipeline in Singularity containers for CI validation
+
+use-singularity: true
+jobs: 4
+printshellcmds: true
+show-failed-logs: true
+rerun-incomplete: true
+restart-times: 0
+configfile: "profiles/test/config_test.yaml"
+
+default-resources:
+  mem_mb: 2000
+  time: 30
+  threads: 2

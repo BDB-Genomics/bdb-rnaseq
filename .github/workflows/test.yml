@@ -127,11 +127,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install "snakemake>=8.0,<9.0" "pyyaml" "pulp>=2.0,<2.8"
 
-      - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v1
-        with:
-          micromamba-version: 'latest'
-
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@v2
 
@@ -145,7 +140,7 @@ jobs:
 
       - name: Run Pipeline (CI Mode - Singularity)
         run: |
-          snakemake --use-singularity --profile profiles/test \
+          snakemake --profile profiles/test_singularity \
             --cores 4 \
             --latency-wait 60
 
