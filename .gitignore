@@ -99,6 +99,8 @@ pipeline.lock
 *.pem
 credentials.json
 secrets.yaml
+.env
+
 
 # --- Aider (AI coding assistant) -------------------------
 .aider*
