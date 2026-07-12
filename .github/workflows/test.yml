@@ -98,9 +98,9 @@ jobs:
       - name: Run Pipeline (CI Mode - Single-End)
         run: |
           snakemake --use-conda --conda-frontend mamba --profile profiles/test \
+            --configfile profiles/test/config_se.yaml \
             --cores 4 \
-            --latency-wait 60 \
-            --config global.samples="data/samples_se.tsv" deseq2_prep.input.samples="data/samples_se.tsv"
+            --latency-wait 60
 
       - name: Upload Test Results
         if: always()

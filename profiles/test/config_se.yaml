@@ -1,0 +1,18 @@
+# Snakemake Single-End Test Overrides
+ci_mode: true
+
+global:
+  samples: "data/samples_se.tsv"
+
+qc_gate:
+  params:
+    min_total_reads: 0
+    min_mapping_rate: 0.0
+    max_duplicate_rate: 100.0
+
+deseq2_prep:
+  params:
+    min_mean_expr: 0
+    padj_threshold: 0.99
+  input:
+    samples: "data/samples_se.tsv"
