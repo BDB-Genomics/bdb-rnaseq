@@ -13,6 +13,7 @@ rule normalize_counts:
     benchmark: "benchmarks/normalize/normalize.txt"
     log: "logs/normalize/normalize.log"
     conda: "envs/deseq2.yaml"
+    container: "https://depot.galaxyproject.org/singularity/pandas:1.5.2"
     threads: 1
 
     message:
