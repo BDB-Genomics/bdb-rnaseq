@@ -21,7 +21,7 @@ rule star_align:
     benchmark: "benchmarks/star/{sample}.txt"
     log: "logs/star/{sample}.log"
     conda: "envs/star.yaml"
-    container: "https://depot.galaxyproject.org/singularity/star:2.5.4a--0"
+    container: "https://depot.galaxyproject.org/singularity/star:2.7.11b--h5ca1c30_4"
     threads: config['star']['threads']
 
     message:
