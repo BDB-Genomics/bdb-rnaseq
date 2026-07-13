@@ -1,4 +1,5 @@
 name: Snakemake Pipeline Test
+# Automated Snakemake pipeline validation suite
 
 on:
   push:
