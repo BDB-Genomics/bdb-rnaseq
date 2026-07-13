@@ -22,7 +22,7 @@ rule deseq2_prep:
 
     benchmark: "benchmarks/deseq2_prep/deseq2_prep.txt"
     log: "logs/deseq2_prep/deseq2_prep.log"
-    conda: get_conda_env("envs/deseq2.yaml")
+    conda: get_conda_env("envs/deseq2.yaml", workflow)
     container: "docker://quay.io/biocontainers/pandas:1.5.2"
     threads: config['deseq2_prep']['threads']
 

@@ -11,7 +11,7 @@ rule samtools_sort:
             
     benchmark: "benchmarks/samtools_sort/{sample}.txt"
     log: "logs/samtools_sort/{sample}.err"
-    conda: get_conda_env("envs/samtools.yaml")
+    conda: get_conda_env("envs/samtools.yaml", workflow)
     container: "docker://quay.io/biocontainers/samtools:1.21--h96c455f_1"
     threads: config['samtools_sort']['threads']
         

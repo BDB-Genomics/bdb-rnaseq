@@ -21,7 +21,7 @@ rule fastqc:
                             
     benchmark: "benchmarks/fastqc/{sample}.txt"
     log: "logs/fastqc/{sample}.log"
-    conda: get_conda_env("envs/fastqc.yaml")
+    conda: get_conda_env("envs/fastqc.yaml", workflow)
     container: "docker://quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0"
     threads: config["fastqc"]["threads"]
         

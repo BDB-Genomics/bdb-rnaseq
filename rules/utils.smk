@@ -66,22 +66,6 @@ def get_consensus_strandedness(report_paths, threshold=0.8, ci_mode=False, fallb
     return consensus
 
 
-def get_conda_env(env_path):
-    import sys
-    is_singularity = False
-    try:
-        if workflow.deployment_settings.use_singularity:
-            is_singularity = True
-    except AttributeError:
-        pass
+from rules.scripts.conda_helper import get_conda_env
 
-    if not is_singularity:
-        for arg in sys.argv:
-            if "singularity" in arg.lower() or "apptainer" in arg.lower():
-                is_singularity = True
-                break
-
-    if is_singularity:
-        return None
-    return env_path
 

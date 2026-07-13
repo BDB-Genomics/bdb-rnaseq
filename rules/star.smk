@@ -20,7 +20,7 @@ rule star_align:
 
     benchmark: "benchmarks/star/{sample}.txt"
     log: "logs/star/{sample}.log"
-    conda: get_conda_env("envs/star.yaml")
+    conda: get_conda_env("envs/star.yaml", workflow)
     container: "docker://quay.io/biocontainers/star:2.7.11b--h5ca1c30_4"
     threads: config['star']['threads']
 
