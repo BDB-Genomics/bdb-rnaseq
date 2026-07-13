@@ -189,6 +189,16 @@ The pipeline includes built-in execution profiles for major cloud orchestrators 
 
 ---
 
+## Pipeline Scope & Important Caveats
+
+Before running or adapting the pipeline, please be aware of the following scope limitations and design choices:
+
+1. **Fallback Normalization:** The `log2(counts + 1)` fallback in the DESeq2 preparation script is strictly for CI/mock data testing (e.g., zero-variance or highly degenerate synthetic datasets). Real biological data should always hit the native DESeq2 VST transformation.
+2. **Quantification Level:** Gene-level quantification via `featureCounts` is implemented by design. Users requiring transcript/isoform-level differential expression must swap the rule or run a pseudo-aligner like Salmon or Kallisto separately.
+3. **Design Formula:** The formula `~ condition` in `deseq2_prep.R` is used *exclusively* for temporary QC dispersion estimation. Downstream differential expression (DE) analyses should explicitly redefine the design formula to account for any specific covariates, interactions, or batch effects.
+
+---
+
 ## Architectural Visualization (Draw.io)
 
 For a fully interactive, editable schematic of the pipeline architecture, please refer to the Draw.io file located at:
