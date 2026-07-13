@@ -15,7 +15,7 @@ rule deseq2_prep:
     params:
         min_mean_expr=config['deseq2_prep']['params']['min_mean_expr'],
         padj_threshold=config['deseq2_prep']['params']['padj_threshold'],
-        output_dir=config['deseq2_prep']['output']['dir']
+        output_dir=lambda w, output: os.path.dirname(output.normalized_counts)
 
     resources:
         mem_mb=config['deseq2_prep']['resources']['mem_mb'],
