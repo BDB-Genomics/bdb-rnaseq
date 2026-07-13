@@ -23,7 +23,7 @@ rule multiqc:
     log: "logs/multiqc/multiqc.log"
     benchmark: "benchmarks/multiqc/multiqc.txt"
     conda: "envs/multiqc.yaml"
-    container: "https://depot.galaxyproject.org/singularity/multiqc:1.0--py27_0"
+    container: "docker://quay.io/biocontainers/multiqc:1.0--py27_0"
     threads: config['multiqc']['threads']
         
     message:

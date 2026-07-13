@@ -22,7 +22,7 @@ rule fastqc:
     benchmark: "benchmarks/fastqc/{sample}.txt"
     log: "logs/fastqc/{sample}.log"
     conda: "envs/fastqc.yaml"
-    container: "https://depot.galaxyproject.org/singularity/fastqc:0.11.5--1"
+    container: "docker://quay.io/biocontainers/fastqc:0.11.5--1"
     threads: config["fastqc"]["threads"]
         
     message:

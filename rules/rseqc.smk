@@ -17,7 +17,7 @@ rule rseqc_infer_experiment:
     benchmark: "benchmarks/rseqc/{sample}_infer_experiment.txt"
     log: "logs/rseqc/{sample}_infer_experiment.log"
     conda: "envs/rseqc.yaml"
-    container: "https://depot.galaxyproject.org/singularity/rseqc:5.0.4--pyhdfd78af_0"
+    container: "docker://quay.io/biocontainers/rseqc:5.0.4--pyhdfd78af_0"
     threads: config['rseqc']['threads']
 
     message:
@@ -57,7 +57,7 @@ rule rseqc_read_distribution:
     benchmark: "benchmarks/rseqc/{sample}_read_distribution.txt"
     log: "logs/rseqc/{sample}_read_distribution.log"
     conda: "envs/rseqc.yaml"
-    container: "https://depot.galaxyproject.org/singularity/rseqc:5.0.4--pyhdfd78af_0"
+    container: "docker://quay.io/biocontainers/rseqc:5.0.4--pyhdfd78af_0"
     threads: config['rseqc']['threads']
 
     message:
@@ -96,7 +96,7 @@ rule rseqc_bam_stat:
     benchmark: "benchmarks/rseqc/{sample}_bam_stat.txt"
     log: "logs/rseqc/{sample}_bam_stat.log"
     conda: "envs/rseqc.yaml"
-    container: "https://depot.galaxyproject.org/singularity/rseqc:5.0.4--pyhdfd78af_0"
+    container: "docker://quay.io/biocontainers/rseqc:5.0.4--pyhdfd78af_0"
     threads: config['rseqc']['threads']
 
     message:
@@ -137,7 +137,7 @@ rule rseqc_gene_body_coverage:
     benchmark: "benchmarks/rseqc/{sample}_gene_body_coverage.txt"
     log: "logs/rseqc/{sample}_gene_body_coverage.log"
     conda: "envs/rseqc.yaml"
-    container: "https://depot.galaxyproject.org/singularity/rseqc:5.0.4--pyhdfd78af_0"
+    container: "docker://quay.io/biocontainers/rseqc:5.0.4--pyhdfd78af_0"
     threads: config['rseqc']['threads']
 
     message:
