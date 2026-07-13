@@ -22,7 +22,7 @@ rule multiqc:
             
     log: "logs/multiqc/multiqc.log"
     benchmark: "benchmarks/multiqc/multiqc.txt"
-    conda: "envs/multiqc.yaml"
+    conda: get_conda_env("envs/multiqc.yaml")
     container: "docker://quay.io/biocontainers/multiqc:1.0--py27_0"
     threads: config['multiqc']['threads']
         

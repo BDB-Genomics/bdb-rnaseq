@@ -602,7 +602,7 @@ def validate_samples_usage(
 
 
 def validate_conda_environments(root: Path, errors: list[str]) -> None:
-    conda_pattern = re.compile(r"conda:\s*['\"]([^'\"]+)['\"]")
+    conda_pattern = re.compile(r"conda:\s*(?:get_conda_env\()?['\"]([^'\"]+)['\"]")
     workflow_files = sorted((root / "rules").glob("*.smk"))
 
     for workflow_file in workflow_files:

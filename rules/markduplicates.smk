@@ -17,7 +17,7 @@ rule markduplicates:
 
     benchmark: "benchmarks/markduplicates/{sample}.txt"
     log: "logs/markduplicates/{sample}.log"
-    conda: "envs/picard.yaml"
+    conda: get_conda_env("envs/picard.yaml")
     container: "docker://quay.io/biocontainers/picard:3.0.0--hdfd78af_0"
     threads: config['markduplicates']['threads']
 

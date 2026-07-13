@@ -14,7 +14,7 @@ rule preseq:
 
     benchmark: "benchmarks/preseq/{sample}.txt"
     log: "logs/preseq/{sample}.log"
-    conda: "envs/preseq.yaml"
+    conda: get_conda_env("envs/preseq.yaml")
     container: "docker://quay.io/biocontainers/preseq:3.1.2--h445547b_2"
     threads: config['preseq']['threads']
 

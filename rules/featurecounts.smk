@@ -35,7 +35,7 @@ rule featurecounts:
 
     benchmark: "benchmarks/featurecounts/featurecounts.txt"
     log: "logs/featurecounts/featurecounts.log"
-    conda: "envs/subread.yaml"
+    conda: get_conda_env("envs/subread.yaml")
     container: "docker://quay.io/biocontainers/subread:2.0.6--he4a0461_2"
     threads: config['featurecounts']['threads']
 

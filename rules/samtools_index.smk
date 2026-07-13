@@ -11,7 +11,7 @@ rule samtools_index:
         
     benchmark: "benchmarks/samtools_index/{sample}.txt"
     log: "logs/samtools_index/{sample}.log"
-    conda: "envs/samtools.yaml"
+    conda: get_conda_env("envs/samtools.yaml")
     container: "docker://quay.io/biocontainers/samtools:1.21--h96c455f_1"
     threads: config['samtools_index']['threads']
         

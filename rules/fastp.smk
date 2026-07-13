@@ -22,7 +22,7 @@ rule fastp_trim :
           
     benchmark: "benchmarks/fastp/{sample}.txt"
     log: "logs/fastp/{sample}.log"
-    conda: "envs/fastp.yaml"
+    conda: get_conda_env("envs/fastp.yaml")
     container: "docker://quay.io/biocontainers/fastp:0.23.4--hadf994f_3"   
     threads: config["fastp"]["threads"]
     
