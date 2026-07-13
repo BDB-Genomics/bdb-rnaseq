@@ -196,6 +196,7 @@ Before running or adapting the pipeline, please be aware of the following scope 
 1. **Fallback Normalization:** The `log2(counts + 1)` fallback in the DESeq2 preparation script is strictly for CI/mock data testing (e.g., zero-variance or highly degenerate synthetic datasets). Real biological data should always hit the native DESeq2 VST transformation.
 2. **Quantification Level:** Gene-level quantification via `featureCounts` is implemented by design. Users requiring transcript/isoform-level differential expression must swap the rule or run a pseudo-aligner like Salmon or Kallisto separately.
 3. **Design Formula:** The formula `~ condition` in `deseq2_prep.R` is used *exclusively* for temporary QC dispersion estimation. Downstream differential expression (DE) analyses should explicitly redefine the design formula to account for any specific covariates, interactions, or batch effects.
+4. **Differential Expression is Out of Scope:** This pipeline deliberately stops at generating raw counts, normalized counts, and exploratory QC (PCA/correlation). It does **not** compare samples statistically to assign significance (FDR/p-values). For downstream statistical testing, users must run a separate pipeline (e.g., `nf-core/differentialabundance`) or perform manual interactive analysis in R using `DESeq2`, `edgeR`, or `limma`.
 
 ---
 
