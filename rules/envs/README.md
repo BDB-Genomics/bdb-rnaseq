@@ -8,13 +8,13 @@ This directory contains strict **one-tool-per-file** Conda environments. Each YA
 
 ```mermaid
 graph TD
-    subgraph rules/envs/ [This Directory]
+    subgraph env_dir ["rules/envs/ (This Directory)"]
         A[fastp.yaml] --> B((fastp))
         C[star.yaml] --> D((STAR))
         E[subread.yaml] --> F((featureCounts))
     end
     
-    subgraph rules/ [Snakemake Rules]
+    subgraph rules_dir ["rules/ (Snakemake Rules)"]
         G[fastp.smk] -.->|conda: envs/fastp.yaml| A
         H[star.smk] -.->|conda: envs/star.yaml| C
         I[featurecounts.smk] -.->|conda: envs/subread.yaml| E
@@ -25,42 +25,33 @@ graph TD
     J --> I
 ```
 
-Each `.smk` rule declares `conda: "envs/<tool>.yaml"`. Snakemake creates an isolated environment for that rule at runtime.
+Each `.smk` rule declares `conda: get_conda_env("envs/<tool>.yaml", workflow)`. Snakemake creates an isolated environment for that rule at runtime.
 
 ---
 
 ## File Reference
 
-| YAML File | Tool | Used by |
-|---|---|---|
-| `fastp.yaml` | fastp | `rules/fastp.smk` |
-| `fastqc.yaml` | FastQC | `rules/fastqc.smk` |
-| `star.yaml` | STAR | `rules/star.smk` |
-| `samtools.yaml` | samtools | `rules/samtools_sort.smk`, `samtools_index.smk`, `samtools_stats.smk` |
-| `picard.yaml` | Picard | `rules/markduplicates.smk` |
-| `subread.yaml` | Subread (featureCounts) | `rules/featurecounts.smk` |
-| `rseqc.yaml` | RSeQC | `rules/rseqc.smk` |
-| `preseq.yaml` | Preseq | `rules/preseq.smk` |
-| `multiqc.yaml` | MultiQC | `rules/multiqc.smk` |
-| `deseq2.yaml` | DESeq2 (R) | R differential expression scripts |
-| `python.yaml` | pandas, numpy | `rules/scripts/` Python analytics |
+| YAML File | Tool | Main Executable | Used by |
+|---|---|---|---|
+| `fastp.yaml` | `fastp` | `fastp` | `rules/fastp.smk` |
+| `fastqc.yaml` | `FastQC` | `fastqc` | `rules/fastqc.smk` |
+| `star.yaml` | `STAR` | `STAR` | `rules/star.smk` |
+| `samtools.yaml` | `samtools` | `samtools` | `rules/samtools_sort.smk`, `samtools_index.smk`, `samtools_stats.smk` |
+| `picard.yaml` | `picard` | `picard` | `rules/markduplicates.smk` |
+| `subread.yaml` | `subread` (featureCounts) | `featureCounts` | `rules/featurecounts.smk` |
+| `rseqc.yaml` | `rseqc` | `infer_experiment.py`, `geneBody_coverage.py` | `rules/rseqc.smk` |
+| `preseq.yaml` | `preseq` | `preseq` | `rules/preseq.smk` |
+| `multiqc.yaml` | `multiqc` | `multiqc` | `rules/multiqc.smk` |
+| `deseq2.yaml` | `deseq2` (R) | `Rscript` | Downstream differential expression |
+| `python.yaml` | `pandas`, `numpy` | `python` | `rules/scripts/` Python analytics |
 
 ---
 
 ## Design Rules
 
-1. **One tool per file.** If `STAR` updates, it does not break `fastp`.
-2. **Pin every version.** Example: `star=2.7.11b`, not just `star`.
-3. **Channel order matters.** Always: `conda-forge` → `bioconda` → `defaults`.
+1. **One tool per file:** If STAR is upgraded or replaced, it cannot break fastp or MultiQC.
+2. **Strict pinning:** Always specify full version numbers (e.g., `star=2.7.11b` rather than `star`).
+3. **Container Compatibility:** Make sure environments correspond to the version used in the container definitions (in rule files) for reproducibility across both local Conda and Singularity modes.
 
 > [!WARNING]
-> Never put two unrelated bioinformatics tools in the same YAML file. If a rule needs two tools, split it into two rules.
-
----
-
-## `envs/` vs `rules/envs/`
-
-| Directory | Purpose |
-|---|---|
-| **`rules/envs/`** (this directory) | Used by Snakemake rules during pipeline execution. Strict, isolated, reproducible. |
-| **`envs/`** (root) | Used by humans for interactive debugging in the terminal. Broader, less strict. |
+> Never bundle multiple unrelated tools into the same YAML file. If a rule requires two separate binaries from different packages, divide it into two sequential rules.

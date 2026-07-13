@@ -1,18 +1,18 @@
-# Pipeline Environments (Grouped)
+# Root-Level Environments (Grouped)
 
-This directory contains **grouped** Conda environments. These bundle multiple tools together for interactive terminal use.
+This directory contains **grouped** Conda environments. These bundle multiple workflow orchestration tools together for interactive terminal use.
 
 ---
 
-## Grouped vs Modular
+## Grouped vs Modular Environments
 
 ```mermaid
 graph TD
-    subgraph envs/ [This Directory: Grouped]
+    subgraph envs_dir ["envs/ (This Directory: Grouped)"]
         A[main.yaml] --> B((snakemake + mamba + pandas))
     end
     
-    subgraph rules/envs/ [Modular: One Tool Per File]
+    subgraph rules_env_dir ["rules/envs/ (Modular: One Tool Per File)"]
         C[fastp.yaml] --> D((fastp only))
         E[star.yaml] --> F((STAR only))
     end
@@ -23,22 +23,16 @@ graph TD
 
 ---
 
-## Files
+## Environment Files
 
-| File | What it contains | When to use it |
+| File | Packages Included | Purpose |
 |---|---|---|
-| `main.yaml` | `snakemake`, `mamba`, `pandas` | Activating the Snakemake runner environment before launching the pipeline |
+| `main.yaml` | `snakemake`, `mamba`, `pandas`, `pyyaml`, `pulp`, `pytest` | Installs the core Snakemake runner environment. Run `conda env create -f envs/main.yaml` before launching the pipeline for the first time. |
 
 ---
 
-## When to Use Which
+## Guidance for Developers
 
-| Scenario | Use |
-|---|---|
-| Running the pipeline | `envs/main.yaml` to get Snakemake. Each rule then uses its own env from `rules/envs/`. |
-| Debugging a tool interactively | `envs/main.yaml` or install the tool manually. |
-| Adding a new rule | Create a new YAML in `rules/envs/`, not here. |
-
-> [!TIP]
-> **This directory** is for humans working in the terminal.
-> **`rules/envs/`** is for Snakemake automation. Keep them separate.
+* **When executing the pipeline:** Activate the root `envs/main.yaml` environment to run the Snakemake controller. Snakemake will automatically resolve and download the modular rule environments located in `rules/envs/`.
+* **When debugging tools:** Use the root environment or install them manually inside a temporary test environment.
+* **When writing a new rule:** Create a new rule-level environment in `rules/envs/<tool>.yaml`. Do **not** add dependencies to `envs/main.yaml` unless the Snakemake controller itself requires them (e.g., config parsing libraries).

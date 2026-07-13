@@ -1,6 +1,6 @@
 # Pipeline Execution Scripts
 
-Bash wrappers that bootstrap, validate, and launch the pipeline.
+Bash wrappers that automate environment checking, configuration validation, and job orchestration.
 
 ---
 
@@ -27,34 +27,26 @@ graph TD
 
 ---
 
-## Scripts
+## Script Reference
 
-| Script | What it does |
-|---|---|
-| `run_pipeline.sh` | Main entry point. Handles environment activation, config validation, and Snakemake launch. |
-| `clean_result_files.sh` | Deletes `results/`, `logs/`, and `benchmarks/` to force a clean re-run. |
-| `directory_structure.sh` | Creates the output directory tree. Mostly redundant since Snakemake auto-creates directories. |
+| Script | Purpose | Usage |
+|---|---|---|
+| `run_pipeline.sh` | Main pipeline orchestrator. Runs pre-flight checks, schema validation, and configures concurrent workers. | `scripts/run_pipeline.sh [options] [-- <snakemake args>]` |
+| `clean_result_files.sh` | Safely purges temporary run files (`results/`, `logs/`, `benchmarks/`) to prepare for a fresh start. | `scripts/clean_result_files.sh` |
+| `directory_structure.sh` | Helper that verifies write permissions by constructing the outputs tree. | `scripts/directory_structure.sh` |
 
 ---
 
-## `run_pipeline.sh` Options
+## `run_pipeline.sh` Configuration Options
 
-| Flag | What it does | Example |
+| Flag | Meaning | Example |
 |---|---|---|
-| `-c, --cores` | Set CPU cores | `-c 16` |
-| `-f, --config` | Custom config path | `-f configs/test.yaml` |
-| `-n, --dry-run` | Build DAG without running jobs | `-n` |
-| `--` | Pass extra args to Snakemake | `-- --profile profiles/slurm` |
-
-### Examples
-
-```bash
-# Local run with 8 cores
-scripts/run_pipeline.sh -c 8 -- --profile profiles/local
-
-# Cloud run on GCP with 100 jobs
-scripts/run_pipeline.sh -c 100 -- --profile profiles/gcp
-
-# Dry run (no jobs executed)
-scripts/run_pipeline.sh -n
-```
+| `-c, --cores N` | Allocates the maximum CPU cores to use | `-c 12` |
+| `-f, --config PATH` | Custom YAML configuration file path | `-f configs/dev.yaml` |
+| `-s, --snakefile PATH` | Custom entry-point Snakefile | `-s custom.smk` |
+| `-l, --log PATH` | Redirects Snakemake execution logs | `-l run.log` |
+| `-n, --dry-run` | Prints execution plan without running shell commands | `-n` |
+| `--no-use-conda` | Disables automated Conda env deployment | `--no-use-conda` |
+| `--keep-going` | Continues execution of independent jobs on failure | `--keep-going` |
+| `--unlock` | Unlocks Snakemake directory locks | `--unlock` |
+| `--` | Appends any raw Snakemake argument directly | `-- --profile profiles/local` |

@@ -1,0 +1,88 @@
+<mxfile host="Electron" modified="2026-07-14T01:00:00.000Z" agent="5.0" version="20.0.0" type="device">
+  <diagram id="RNAseqArchitecture" name="Modular RNA-seq Pipeline">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Nodes -->
+        <mxCell id="node_fastq" value="Raw FASTQ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="node_fastp" value="fastp&#xa;(Trim &amp; Filter)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="180" y="200" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="node_star" value="STAR&#xa;(Alignment)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="320" y="200" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="node_sort" value="samtools sort" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="460" y="200" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="node_picard" value="Picard&#xa;MarkDuplicates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="600" y="200" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="node_index" value="samtools index" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="740" y="200" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- QC side branches -->
+        <mxCell id="node_fastqc" value="FastQC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="180" y="80" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="node_rseqc" value="RSeQC&#xa;(Strandedness)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="740" y="80" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="node_preseq" value="Preseq&#xa;(Complexity)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Quantification -->
+        <mxCell id="node_fc" value="featureCounts&#xa;(Quantification)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="740" y="320" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Analytics -->
+        <mxCell id="node_norm" value="normalize.py&#xa;(TPM / FPKM)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="600" y="320" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="node_deseq" value="deseq2_prep.py&#xa;(VST / PCA)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="460" y="320" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Reporting -->
+        <mxCell id="node_mqc" value="MultiQC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#b85450;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="320" y="80" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Edges -->
+        <mxCell id="edge1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_fastq" target="node_fastp" parent="1" />
+        <mxCell id="edge2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_fastp" target="node_star" parent="1" />
+        <mxCell id="edge3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_star" target="node_sort" parent="1" />
+        <mxCell id="edge4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_sort" target="node_picard" parent="1" />
+        <mxCell id="edge5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_picard" target="node_index" parent="1" />
+        
+        <mxCell id="edge_fqc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_fastp" target="node_fastqc" parent="1" />
+        <mxCell id="edge_rsq" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_index" target="node_rseqc" parent="1" />
+        <mxCell id="edge_psq" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_index" target="node_preseq" parent="1" />
+        
+        <mxCell id="edge_fc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_index" target="node_fc" parent="1" />
+        <mxCell id="edge_fc_rsq" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1" edge="1" source="node_rseqc" target="node_fc" parent="1" />
+        
+        <mxCell id="edge_norm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_fc" target="node_norm" parent="1" />
+        <mxCell id="edge_deseq" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" source="node_fc" target="node_deseq" parent="1" />
+        
+        <!-- MultiQC connections -->
+        <mxCell id="edge_mqc1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;dashed=1" edge="1" source="node_fastqc" target="node_mqc" parent="1" />
+        <mxCell id="edge_mqc2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;dashed=1" edge="1" source="node_fastp" target="node_mqc" parent="1" />
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

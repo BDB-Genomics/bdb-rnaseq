@@ -1,10 +1,10 @@
 # Pipeline Rules
 
-This directory contains the modular Snakemake rule files. Each `.smk` file wraps a single bioinformatics tool.
+This directory contains the modular Snakemake rule files. Each `.smk` file wraps a single bioinformatics tool, isolating its execution context.
 
 ---
 
-## DAG (Dependency Order)
+## Modular Rule DAG
 
 ```mermaid
 graph TD
@@ -33,49 +33,61 @@ graph TD
 
 ---
 
-## Rule Files
+## Rule Reference
 
-### Preprocessing & QC
+### Preprocessing & Quality Control
 
-| File | Tool | What it does |
+| File | Bioinformatics Tool | Purpose |
 |---|---|---|
-| `fastp.smk` | fastp | Trim adapters, filter low-quality reads |
-| `fastqc.smk` | FastQC | Generate per-read quality reports |
-| `preseq.smk` | Preseq | Estimate library complexity |
-| `qc_gate.smk` | Custom | Check mapping rate, duplication rate, total reads against thresholds. Flag samples as PASS/FAIL |
-| `multiqc.smk` | MultiQC | Aggregate all QC logs into one HTML report |
+| `fastp.smk` | `fastp` | Performs adapter trimming and quality filtering of raw reads |
+| `fastqc.smk` | `FastQC` | Generates per-read quality metrics in HTML format |
+| `preseq.smk` | `Preseq` | Estimates library complexity and predicted unique yields |
+| `qc_gate.smk` | Custom Validator | Evaluates mapping rate, duplication rate, and reads against user thresholds |
+| `multiqc.smk` | `MultiQC` | Combines QC logs from all tools into an interactive summary report |
 
-### Alignment & BAM Processing
+### Alignment & BAM Post-processing
 
-| File | Tool | What it does |
+| File | Bioinformatics Tool | Purpose |
 |---|---|---|
-| `star.smk` | STAR | Splice-aware alignment to the reference genome |
-| `samtools_sort.smk` | samtools | Coordinate-sort BAM files |
-| `markduplicates.smk` | Picard | Mark PCR duplicates |
-| `samtools_index.smk` | samtools | Create `.bai` index for random BAM access |
-| `samtools_stats.smk` | samtools | Compute alignment statistics |
+| `star.smk` | `STAR` | Performs splice-aware alignment against the reference genome |
+| `samtools_sort.smk` | `samtools` | Coordinate-sorts BAM files |
+| `markduplicates.smk` | `Picard` | Detects and marks PCR duplicate reads |
+| `samtools_index.smk` | `samtools` | Indexes sorted and marked BAM files |
+| `samtools_stats.smk` | `samtools` | Computes comprehensive alignment statistics |
 
 ### Quantification & Analytics
 
-| File | Tool | What it does |
+| File | Bioinformatics Tool | Purpose |
 |---|---|---|
-| `featurecounts.smk` | Subread featureCounts | Count reads per gene. Uses auto-detected strandedness from RSeQC |
-| `rseqc.smk` | RSeQC | Gene body coverage, read distribution, strandedness inference |
-| `normalize.smk` | Custom Python | Compute FPKM and TPM from raw counts |
-| `deseq2_prep.smk` | Custom Python | VST normalization, PCA, sample correlation matrix |
+| `featurecounts.smk` | `featureCounts` | Counts reads mapped to genomic features, using auto-detected strandedness |
+| `rseqc.smk` | `RSeQC` | Evaluates gene body coverage, read distribution, and strandedness inference |
+| `normalize.smk` | Custom Python Script | Normalizes raw counts into FPKM and TPM matrices |
+| `deseq2_prep.smk` | Custom Python Script | Performs VST-like log transform, PCA, and sample correlation |
 
-### Infrastructure
+### Helper Infrastructure
 
-| File | What it does |
+| File | Purpose |
 |---|---|
-| `resources.smk` | Dynamic memory and time allocation functions. Scales with input size and retry count |
-| `utils.smk` | Helper functions: `is_single_end()` and `get_consensus_strandedness()` |
+| `resources.smk` | Dynamically allocates CPU, RAM, and runtime based on input file sizes and retries |
+| `utils.smk` | General helpers, importing `get_conda_env` and auto-strandedness consensus functions |
 
 ---
 
-## Design Rules
+## Modularity & Swappability (Contrast vs Monolithic)
 
-1. **`set -euo pipefail`** in every shell block. Fail immediately on any hidden error.
-2. **One Conda env per rule.** Defined in `envs/`. No shared environments.
-3. **All paths from `config.yaml`.** Nothing is hardcoded.
-4. **All logs captured.** Every rule writes `stdout` and `stderr` to dedicated log files.
+Unlike monolithic pipelines where components are tightly coupled via direct script calls or shared configuration blocks, this rule directory operates on a strict **input/output contract**:
+* **Alternative Alignment:** Swap `STAR` with `HISAT2` or `minimap2` by rewriting `star.smk`. As long as the output is a coordinate-sorted BAM, no downstream rules need to be modified.
+* **Alternative Quantification:** Swap `featureCounts` for pseudo-aligners like `Salmon` or `Kallisto` by editing `featurecounts.smk` to output a gene count matrix.
+* **Architecture Security:** This modularity protects the overall architecture from breaking during tool updates or algorithm changes.
+
+For an interactive, editable visualization of the modular rule connections and dependency schema, see the Draw.io schematic:
+* **[docs/architecture.drawio](../docs/architecture.drawio)**
+
+---
+
+## Developer Guidelines
+
+1. **Strict Error Isolation:** Always use `set -euo pipefail` inside the `shell:` blocks.
+2. **Logging:** Every rule must redirect standard output and standard error using the `log:` directive.
+3. **Environment Sandboxing:** Never use shared Conda environments. Reference `get_conda_env` pointing to the corresponding environment YAML in `rules/envs/`.
+

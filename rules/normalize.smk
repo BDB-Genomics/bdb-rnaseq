@@ -12,7 +12,7 @@ rule normalize_counts:
 
     benchmark: "benchmarks/normalize/normalize.txt"
     log: "logs/normalize/normalize.log"
-    conda: get_conda_env("envs/deseq2.yaml", workflow)
+    conda: get_conda_env("envs/pandas.yaml", workflow)
     container: "docker://quay.io/biocontainers/pandas:1.5.2"
     threads: 1
 

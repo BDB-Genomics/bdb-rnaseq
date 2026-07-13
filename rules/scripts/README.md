@@ -1,6 +1,6 @@
 # Pipeline Scripts
 
-Python utilities for validation, QC gating, normalization, analytics, and CI/CD test data generation.
+Scripts and utilities for validation, QC gating, normalization, analytics, and CI/CD test data generation.
 
 ---
 
@@ -17,7 +17,7 @@ graph TD
     QC -- Passes --> FC[featureCounts]
 
     FC --> N[normalize.py]
-    FC --> D[deseq2_prep.py]
+    FC --> D["deseq2_prep.R (Rscript)"]
     
     N --> End((Pipeline Finish))
     D --> End
@@ -38,160 +38,24 @@ graph TD
 
 ## Script Reference
 
-| Script | When it runs | What it does |
-|---|---|---|
-| `validate_config.py` | Before DAG | Checks all `config.yaml` keys, types, and file paths exist |
-| `parse_qc_metrics.py` | After alignment | Reads total reads, mapping rate, duplicate rate. Flags samples as PASS or FAIL |
-| `normalize.py` | After featureCounts | Computes FPKM and TPM from the raw count matrix |
-| `deseq2_prep.py` | After featureCounts | VST-like normalization, PCA on top-500 variable genes, Pearson correlation matrix |
-| `run_batched.py` | Manual use | Splits samples into batches for sequential Snakemake runs on low-memory machines |
-| `aggregate_logs.py` | After completion | Collects benchmark and log data into a single JSON summary |
-| `generate_test_data.py` | CI/CD only | Creates synthetic genome, STAR index, and paired-end FASTQs for automated testing |
-| `test_validate_config.py` | CI/CD only | Unit tests for `validate_config.py` |
+| Script | Language | Purpose | When It Runs |
+|---|---|---|---|
+| `validate_config.py` | Python | Validates YAML schema, key presence, structure, and required file paths | Before any jobs start |
+| `conda_helper.py` | Python | Helper that dynamically returns the Conda environment or disables it (returning `None`) inside Singularity/Apptainer containers | During DAG compilation |
+| `parse_qc_metrics.py` | Python | Parses alignment metrics and flags samples violating QC thresholds | After sorting/stats |
+| `normalize.py` | Python | Converts raw gene counts into FPKM and TPM | After feature quantification |
+| `deseq2_prep.R` | R | Performs biological Variance Stabilizing Transformation (VST), PCA, correlation, and dispersion estimation | After feature quantification |
+| `run_batched.py` | Python | Splits samples into smaller batches to run sequentially on memory-limited machines | Standalone wrapper |
+| `aggregate_logs.py` | Python | Parses and logs benchmark metrics to a JSON telemetry file | After run finishes |
+| `generate_test_data.py` | Python | Simulates a synthetic genome, builds a STAR index, and generates paired-end/single-end reads | CI/CD testing only |
+| `test_validate_config.py` | Python | Unit tests for configuration validation | CI/CD testing only |
 
 ---
 
-## Fail-Safe Behavior
+## Fail-Safe Details
 
-| Script | Failure case | What happens |
-|---|---|---|
-| `validate_config.py` | Missing key or invalid path | Exits with code 1 before any job runs |
-| `parse_qc_metrics.py` | Cannot parse a metric value | Defaults to `0.0` and flags the sample as `FAILED` |
-| `deseq2_prep.py` | No sample names match between counts and sample sheet | Prints error to stderr, exits with code 1 |
-| `deseq2_prep.py` | Division by zero in VST normalization | Stabilized with `+ 0.1` in the variance denominator |
-| `deseq2_prep.py` | Log of zero in rlog | Stabilized with `+ alpha` before the `log2` transform |
-| `normalize.py` | Zero-length gene or zero library size | Writes `0.0` instead of crashing |
+* **`validate_config.py`:** Hard-stops execution (exit code 1) on missing config entries or missing sample directories.
+* **`conda_helper.py`:** Silently ignores `AttributeError` if Snakemake's API is missing attributes, checking the CLI arguments as a robust fallback.
+* **`deseq2_prep.R`:** Implements robust error handling that falls back to `varianceStabilizingTransformation(fitType="mean")` if standard VST fails on small sample sizes.
+* **`normalize.py`:** Safeguards against zero-length features or unmapped samples, writing `0.0` rather than raising division errors.
 
----
-
-## Script Flowcharts
-
-### 1. `validate_config.py`
-<details>
-<summary>▶ Click to expand</summary>
-
-```mermaid
-graph TD
-    A[config.yaml] --> B(Load & Parse YAML)
-    B --> C{Valid syntax?}
-    C -- No --> D[Exit 1]
-    C -- Yes --> E(Scan .smk rules for config keys)
-    E --> F{All keys present?}
-    F -- No --> D
-    F -- Yes --> G(Check types & file paths)
-    G --> H{All valid?}
-    H -- No --> D
-    H -- Yes --> I[Exit 0 — Proceed]
-```
-
-</details>
-
-### 2. `parse_qc_metrics.py`
-<details>
-<summary>▶ Click to expand</summary>
-
-```mermaid
-graph TD
-    A[BAM Stats File] --> B(Load metrics)
-    B --> C{Parseable?}
-    C -- No --> D[Default to 0.0, flag FAILED]
-    C -- Yes --> E(Check reads, mapping rate, dup rate)
-    E --> F{Thresholds met?}
-    F -- No --> G[Flag FAILED]
-    F -- Yes --> H[Flag PASSED]
-    D --> I(Write to log)
-    G --> I
-    H --> I
-    I --> J{Any failures?}
-    J -- Yes --> K[Exit 1]
-    J -- No --> L[Exit 0]
-```
-
-</details>
-
-### 3. `normalize.py`
-<details>
-<summary>▶ Click to expand</summary>
-
-```mermaid
-graph TD
-    A[counts.txt + GTF] --> B(Parse count matrix)
-    B --> C(Compute gene lengths from GTF)
-    C --> D(Calculate FPKM per sample)
-    D --> E(Calculate TPM per sample)
-    E --> F(Write FPKM and TPM matrices)
-    F --> G[Exit 0]
-```
-
-</details>
-
-### 4. `deseq2_prep.py`
-<details>
-<summary>▶ Click to expand</summary>
-
-```mermaid
-graph TD
-    A[counts.txt + samples.tsv] --> B(Parse counts & metadata)
-    B --> C{Sample names match?}
-    C -- No --> D[stderr error & Exit 1]
-    C -- Yes --> E(Filter low-expressed genes)
-    E --> F(Normalize via VST-like log2 transform)
-    F --> G(PCA on top-500 variable genes)
-    G --> H(Pearson sample correlation)
-    H --> I(Write all outputs)
-    I --> J[Exit 0]
-```
-
-</details>
-
-### 5. `run_batched.py`
-<details>
-<summary>▶ Click to expand</summary>
-
-```mermaid
-graph TD
-    A[samples.tsv] --> B(Validate sample name regex)
-    B --> C{Invalid characters?}
-    C -- Yes --> D[Exit 1]
-    C -- No --> E(Split into batches)
-    E --> F{Dry run?}
-    F -- Yes --> G[Print batches & Exit 0]
-    F -- No --> H(Run Snakemake per batch)
-    H --> I[Run final MultiQC]
-```
-
-</details>
-
-### 6. `aggregate_logs.py`
-<details>
-<summary>▶ Click to expand</summary>
-
-```mermaid
-graph TD
-    A[benchmarks/ + logs/] --> B{Pipeline failed?}
-    B -- Yes --> C(Scan logs for errors)
-    C --> D(Filter false-positive warnings)
-    D --> E(Collect real errors)
-    B -- No --> F(Parse benchmark times & memory)
-    F --> G(Build telemetry report)
-    E --> G
-    G --> H[pipeline_execution_summary.json]
-```
-
-</details>
-
-### 7. `generate_test_data.py`
-<details>
-<summary>▶ Click to expand</summary>
-
-```mermaid
-graph TD
-    A[Start] --> B(Build synthetic genome & GTF)
-    B --> C(Generate FASTA & chrom.sizes)
-    C --> D{STAR on PATH?}
-    D -- No --> E[Raise FileNotFoundError]
-    D -- Yes --> F(Build STAR index)
-    F --> G(Simulate paired-end FASTQs)
-```
-
-</details>

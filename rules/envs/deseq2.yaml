@@ -1,7 +1,8 @@
 name: deseq2_env
 channels:
   - conda-forge
+  - bioconda
+  - defaults
 dependencies:
-  - python>=3.9
-  - numpy
-  - pandas
+  - r-base>=4.3
+  - bioconductor-deseq2>=1.40
