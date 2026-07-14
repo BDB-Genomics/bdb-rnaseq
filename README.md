@@ -235,4 +235,26 @@ If you use this pipeline in your research, please cite:
 * **RSeQC:** Wang et al., 2012 (*Bioinformatics*)
 * **featureCounts:** Liao et al., 2014 (*Bioinformatics*)
 * **DESeq2:** Love et al., 2014 (*Genome Biology*)
-* **MultiQC:** Ewels et al., 2016 (*Bioinformatics*)
+* **MultiQC:** Ewels et al., 2016 (*Bioinformatics*)## ☁️ Using Cloud Storage (Optional)
+
+If your data lives on Google Drive (or any cloud), use [rclone](https://rclone.org) to sync it locally before running the pipeline.
+
+**1. Pull your raw data:**
+```bash
+rclone sync mydrive:raw_data/ ./data/
+```
+
+**2. Run the pipeline as normal:**
+```bash
+snakemake --cores 8
+```
+
+**3. Push results back to the cloud:**
+```bash
+rclone sync ./results/ pipeline_results/
+```
+
+> **Note**: Always run the pipeline on a local folder, not directly inside a mounted cloud drive. This avoids I/O slowdowns and file lock errors.
+
+> Rclone supports 70+ storage backends including AWS S3, Azure Blob, and Dropbox. See [rclone.org](https://rclone.org) to configure your provider.
+
