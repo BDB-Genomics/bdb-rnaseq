@@ -235,7 +235,9 @@ If you use this pipeline in your research, please cite:
 * **RSeQC:** Wang et al., 2012 (*Bioinformatics*)
 * **featureCounts:** Liao et al., 2014 (*Bioinformatics*)
 * **DESeq2:** Love et al., 2014 (*Genome Biology*)
-* **MultiQC:** Ewels et al., 2016 (*Bioinformatics*)## ☁️ Using Cloud Storage (Optional)
+* **MultiQC:** Ewels et al., 2016 (*Bioinformatics*)
+
+## ☁️ Using Cloud Storage (Optional)
 
 If your data lives on Google Drive (or any cloud), use [rclone](https://rclone.org) to sync it locally before running the pipeline.
 
